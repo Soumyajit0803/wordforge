@@ -1,142 +1,145 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
-
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
-}
+/* app/page.module.css */
 
 .main {
   display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
 }
 
-.intro {
+.wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
-}
-
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
-}
-
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
-}
-
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
+  font-family: var(--app-font), monospace;
+  padding: 1rem;
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border :1px solid var(--foreground);
+  width: min(400px, 100%);
 }
 
-.ctas a {
+.main p {
+  text-align: center;
+}
+
+/* Classic Wordle-style top border header */
+.header {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
+  height: 5rem;
+  width: 100%;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 0.1rem;
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  padding: 2rem 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.promptText {
+  font-size: 1rem;
+  margin-bottom: 2rem;
   font-weight: 500;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+/* Flat, chunky buttons */
+.loginButton {
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.welcomeBox {
+  margin-bottom: 2rem;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.welcomeName {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0.5rem 0;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+/* Wordle Green */
+.primaryLink {
+  background-color: #538d4e; 
+  color: #ffffff;
+  border: none;
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  transition: background-color 0.2s;
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
+.primaryLink:hover {
+  background-color: #43723e;
+}
 
-  .page {
-    --background: #000;
-    --foreground: #000;
+/* Wordle Gray */
+.secondaryLink {
+  background-color: #787c7e; 
+  color: #ffffff;
+  border: none;
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: block;
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+}
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+.secondaryLink:hover {
+  background-color: #636668;
+}
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
-  }
+/* Simple Loader */
+.loaderContainer {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 4px solid #f3f3f3;
+  border-top-color: #538d4e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

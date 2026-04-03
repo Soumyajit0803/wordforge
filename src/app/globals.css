@@ -1,49 +1,74 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  outline: 0;
+  font-family: var(--app-font);
+
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Light Mode Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #bababa;
+  --text-primary: #000000;
+  --text-secondary: #454545;
+  --border-color: #e5e7eb;
+  
+  /* Skeleton Specific */
+  --skeleton-bg: #eeeeee;
+  --skeleton-shimmer: rgba(255, 255, 255, 0.5);
+
+  --work: #3b82f6;
+  --personal: #10b981;
+  --ideas: #f59e0b;
+  --work-bg: rgba(59, 130, 246, 0.1);
+  --personal-bg: rgba(16, 185, 129, 0.1);
+  --ideas-bg: rgba(245, 158, 11, 0.1);
 }
 
 html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
+  background-color: var(--background);
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
+body {
+  font-family: var(--font-geist-mono);
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
   padding: 0;
   margin: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* This allows us to force dark mode by adding a class to the html tag */
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
+/* Keep your existing media query so it defaults to system settings */
 @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  :root:not([data-theme="light"]) {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    /* Dark Mode Colors */
+    --bg-primary: #313131;
+    --bg-secondary: #3d3d3d;
+    --text-primary: #ffffff;
+    --text-secondary: #dbdbdb;
+    --border-color: #595959;
+
+    /* Skeleton Specific */
+    --skeleton-bg: #414141;
+    --skeleton-shimmer: rgba(255, 255, 255, 0.05);
   }
 }
