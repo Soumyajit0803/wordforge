@@ -50,12 +50,11 @@ export default function Home() {
     <main className={styles.main}>
       {/* Stark, bordered header */}
       <div className={styles.wrapper}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>WordForge</h1>
-        </header>
-        <p>
-          Love wordle? Try WordForge, a competitive twist on the classic word game. Challenge friends, climb the leaderboards, and forge your path to word mastery. Play now and see if you have what it takes to be the ultimate WordForge champion!
-        </p>
+        {!session?.user && (
+          <p>
+            Love wordle? Try WordForge, a competitive twist on the classic word game. Challenge friends, climb the leaderboards, and forge your path to word mastery. Play now and see if you have what it takes to be the ultimate WordForge champion!
+          </p>
+        )}
 
         {/* Centered minimal content area */}
         <div className={styles.content}>
@@ -75,14 +74,9 @@ export default function Home() {
                 <p className={styles.welcomeName}>{session.user.name}</p>
               </div>
 
-              <div style={{ width: "100%" }}>
-                <Link href="/play" className={styles.primaryLink}>
-                  Play
-                </Link>
-
-                <Link href="/dashboard" className={styles.secondaryLink}>
-                  Matches
-                </Link>
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <AppButton routeURL="/play" text="Play Now" />
+                <AppButton routeURL="/match" text="View Matches" />
 
                 <AppButton
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -91,7 +85,6 @@ export default function Home() {
               </div>
             </>
           )}
-          <ToggleButton />
         </div>
       </div>
     </main>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import Navbar from "@/components/Navbar/Navbar";
 
 // export const metadata: Metadata = {
 //   title: "Flynotes - Your Lightweight Note-Taking Companion",
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${robotoMono.variable}`}>
         <Providers>
+          <Navbar />
           {children}
         </Providers>
       </body>

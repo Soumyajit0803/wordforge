@@ -5,7 +5,6 @@
   align-items: center;
   justify-content: center;
   width: 100vw;
-  height: 100vh;
 }
 
 .wrapper {
@@ -19,6 +18,7 @@
   flex-direction: column;
   border :1px solid var(--foreground);
   width: min(400px, 100%);
+  margin-top: 3rem;
 }
 
 .main p {
@@ -81,7 +81,7 @@
 
 /* Wordle Green */
 .primaryLink {
-  background-color: #538d4e; 
+  background-color: #5460c5; 
   color: #ffffff;
   border: none;
   padding: 16px 24px;
@@ -93,12 +93,11 @@
   text-decoration: none;
   display: block;
   box-sizing: border-box;
-  margin-bottom: 12px;
   transition: background-color 0.2s;
 }
 
 .primaryLink:hover {
-  background-color: #43723e;
+  background-color: #343b78;
 }
 
 /* Wordle Gray */
