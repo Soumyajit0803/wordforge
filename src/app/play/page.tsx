@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import styles from "./play.module.css";
+import Popup from "@/components/Popup/Popup";
+import { CornerDownLeftIcon, Delete } from "lucide-react";
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 // The hardcoded target word for testing
 const TARGET_WORD = "ghost";
+let wordSet: Set<string> = new Set();
 
 const KEYBOARD_ROWS = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -23,6 +26,9 @@ export const enum Evaluation {
 }
 
 export default function PlayArea() {
+  const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+
   const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(""));
   const [evaluations, setEvaluations] = useState<Evaluation[][]>(
     Array(MAX_GUESSES).fill(Array(WORD_LENGTH).fill(Evaluation.NODATA)),
@@ -32,6 +38,17 @@ export default function PlayArea() {
   const [keyboardStatus, setKeyboardStatus] = useState<
     Record<string, Evaluation>
   >({});
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/words.json")
+      .then((res) => res.json())
+      .then((data: string[]) => {
+        wordSet = new Set(data.map((w) => w.toLowerCase()));
+        setDictionaryLoaded(true);
+      });
+  }, []);
 
   const evaluateGuess = (guess: string) => {
     const result: Evaluation[] = Array(WORD_LENGTH).fill(Evaluation.ABSENT);
@@ -61,72 +78,79 @@ export default function PlayArea() {
     (key: string) => {
       if (gameStatus !== "playing") return;
 
-      setGuesses((prevGuesses) => {
-        const newGuesses = [...prevGuesses];
-        const currentGuess = newGuesses[currentGuessIndex];
+      // 1. Get current guess state
+      const currentGuess = guesses[currentGuessIndex];
 
-        if (key === "backspace") {
-          newGuesses[currentGuessIndex] = currentGuess.slice(0, -1);
-        } else if (key === "enter") {
-          // Only submit if the word is exactly 5 letters long
-          if (currentGuess.length === WORD_LENGTH) {
-            // 1. Evaluate the word
-            const currentEval = evaluateGuess(currentGuess);
-
-            setEvaluations((prevEvals) => {
-              const newEvals = [...prevEvals];
-              newEvals[currentGuessIndex] = currentEval;
-              return newEvals;
-            });
-
-            setKeyboardStatus((prevStatus) => {
-              const newStatus = { ...prevStatus };
-
-              currentGuess.split("").forEach((letter, i) => {
-                const current = currentEval[i];
-                const existing = newStatus[letter] || Evaluation.NODATA;
-
-                // Enforce the hierarchy: Green > Yellow > Gray
-                if (current === Evaluation.CORRECT) {
-                  newStatus[letter] = Evaluation.CORRECT;
-                } else if (
-                  current === Evaluation.PRESENT &&
-                  existing !== Evaluation.CORRECT
-                ) {
-                  newStatus[letter] = Evaluation.PRESENT;
-                } else if (
-                  current === Evaluation.ABSENT &&
-                  existing === Evaluation.NODATA
-                ) {
-                  newStatus[letter] = Evaluation.ABSENT;
-                }
-              });
-
-              return newStatus; // React updates the state exactly once!
-            });
-
-            // 2. Check Win/Loss conditions
-            const isWin = currentEval.every(
-              (status) => status === Evaluation.CORRECT,
-            );
-
-            if (isWin) {
-              setGameStatus("won");
-            } else if (currentGuessIndex === MAX_GUESSES - 1) {
-              setGameStatus("lost");
-            } else {
-              // Move to next row
-              setCurrentGuessIndex(currentGuessIndex + 1);
-            }
+      if (key === "backspace") {
+        setGuesses((prev) => {
+          const next = [...prev];
+          next[currentGuessIndex] = currentGuess.slice(0, -1);
+          return next;
+        });
+      } else if (key === "enter") {
+        if (currentGuess.length === WORD_LENGTH) {
+          // --- VALIDATION CHECK ---
+          if (wordSet.size > 0 && !wordSet.has(currentGuess.toLowerCase())) {
+            console.log("Not in word list");
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500); // Reset after animation
+            return; // Stop here!
           }
-        } else if (currentGuess.length < WORD_LENGTH && /^[a-z]$/i.test(key)) {
-          newGuesses[currentGuessIndex] = currentGuess + key.toLowerCase();
-        }
 
-        return newGuesses;
-      });
+          // --- EVALUATION ---
+          const currentEval = evaluateGuess(currentGuess);
+
+          setEvaluations((prev) => {
+            const next = [...prev];
+            next[currentGuessIndex] = currentEval;
+            return next;
+          });
+
+          // Update Keyboard Colors
+          setKeyboardStatus((prevStatus) => {
+            const newStatus = { ...prevStatus };
+            currentGuess.split("").forEach((letter, i) => {
+              const current = currentEval[i];
+              const existing = newStatus[letter] || Evaluation.NODATA;
+              if (current === Evaluation.CORRECT)
+                newStatus[letter] = Evaluation.CORRECT;
+              else if (
+                current === Evaluation.PRESENT &&
+                existing !== Evaluation.CORRECT
+              )
+                newStatus[letter] = Evaluation.PRESENT;
+              else if (
+                current === Evaluation.ABSENT &&
+                existing === Evaluation.NODATA
+              )
+                newStatus[letter] = Evaluation.ABSENT;
+            });
+            return newStatus;
+          });
+
+          // --- GAME OVER CHECK OR NEXT ROW ---
+          const isWin = currentEval.every((s) => s === Evaluation.CORRECT);
+
+          if (isWin) {
+            setGameStatus("won");
+            setIsModalOpen(true);
+          } else if (currentGuessIndex === MAX_GUESSES - 1) {
+            setGameStatus("lost");
+            setIsModalOpen(true);
+          } else {
+            // THIS IS THE KEY: Increment the row index
+            setCurrentGuessIndex((prev) => prev + 1);
+          }
+        }
+      } else if (currentGuess.length < WORD_LENGTH && /^[a-z]$/i.test(key)) {
+        setGuesses((prev) => {
+          const next = [...prev];
+          next[currentGuessIndex] = currentGuess + key.toLowerCase();
+          return next;
+        });
+      }
     },
-    [currentGuessIndex, gameStatus],
+    [currentGuessIndex, gameStatus, guesses], // Added 'guesses' to dependencies!
   );
 
   // Handle Physical Keyboard
@@ -141,15 +165,8 @@ export default function PlayArea() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onKeyPress]);
 
-  const challengerName = "Alex";
-
   return (
     <main className={styles.container}>
-      <div className={styles.challengeBanner}>
-        Challenged by{" "}
-        <span className={styles.challengerName}>{challengerName}</span>
-      </div>
-
       {/* Game Board */}
       <div className={styles.board}>
         {guesses.map((guess, rowIndex) => {
@@ -177,7 +194,7 @@ export default function PlayArea() {
                 }
 
                 return (
-                  <div key={colIndex} className={`${styles.tile} ${tileClass}`}>
+                  <div key={colIndex} className={`${styles.tile} ${tileClass} ${isShaking && isCurrentRow ? styles.shake : ""}`}>
                     {letter}
                   </div>
                 );
@@ -189,9 +206,12 @@ export default function PlayArea() {
 
       {/* Game Over State */}
       {gameStatus !== "playing" && (
-        <div className={styles.gameOverBanner}>
-          {gameStatus === "won" ? "You Won!" : `Game Over: ${TARGET_WORD}`}
-        </div>
+        <Popup
+          gameStatus={gameStatus}
+          targetWord={TARGET_WORD}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
 
       {/* On-Screen Keyboard */}
@@ -216,7 +236,13 @@ export default function PlayArea() {
                   onClick={() => onKeyPress(key)}
                   tabIndex={-1}
                 >
-                  {key === "backspace" ? "⌫" : key}
+                  {key === "backspace" ? (
+                    <Delete size={20} />
+                  ) : key === "enter" ? (
+                    <CornerDownLeftIcon size={20} />
+                  ) : (
+                    key.toUpperCase()
+                  )}
                 </button>
               );
             })}

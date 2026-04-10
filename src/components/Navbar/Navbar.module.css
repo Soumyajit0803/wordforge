@@ -1,7 +1,30 @@
 .navbar {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: 0.7rem;
     border: 1px solid #000;
+}
+
+
+/* Challenge Banner */
+.challengeBanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #dbedff;
+  border: 1px solid #b0d2ff;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #787c7e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: fit-content;
+}
+
+.challengerName {
+  color: #1a1a1b;
+  font-weight: bold;
+  margin-left: 6px;
 }
