@@ -1,5 +1,6 @@
 import { ChartBar, CircleUser, Compass, FileQuestion, HelpCircle, LucideChartBar, Menu, ScanFaceIcon } from "lucide-react";
 import styles from "./Navbar.module.css";
+import Link from "next/link";
 
 const Navbar = () => {
   return (
@@ -10,7 +11,9 @@ const Navbar = () => {
       </div>
       <h2 className={styles.heading}>WordForge</h2>
       <div className={styles.section}>
-        <ChartBar size={24} />
+        <Link href="/leaderboard">
+          <ChartBar size={24} />
+        </Link>
         <CircleUser size={24} />
       </div>
       

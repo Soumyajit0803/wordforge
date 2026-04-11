@@ -1,19 +1,28 @@
-/* Add to leaderboard.module.css */
+/* leaderboard.module.css */
+
+/* --- Container & Controls --- */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 95%;
+  max-width: 600px;
+  margin: 0 auto;
+}
 
 .controls {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
   background-color: #f8f9fa;
-  padding: 1rem 1.5rem;
+  padding: 1.25rem;
   border-radius: 8px;
   border: 1px solid #d3d6da;
 }
 
 .dropdownLabel {
   font-size: 0.875rem;
-  font-weight: bold;
+  font-weight: 700;
   color: #787c7e;
   text-transform: uppercase;
 }
@@ -24,21 +33,156 @@
   font-size: 1rem;
   border: 2px solid #d3d6da;
   border-radius: 6px;
-  background-color: white;
+  background-color: #ffffff;
   color: #1a1a1b;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s;
   font-family: inherit;
+  transition: border-color 0.2s ease;
 }
 
-.dropdown:focus {
-  border-color: #6aaa64;
+.dropdown:focus,
+.dropdown:hover {
+  border-color: #6aaa64; /* Wordle green focus */
+}
+
+/* --- Card & Header --- */
+.boardCard {
+  background-color: #ffffff;
+  border: 1px solid #d3d6da;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #d3d6da;
+}
+
+.wordTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1a1a1b;
+}
+
+.playLink {
+  color: #6aaa64;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.playLink:hover {
+  color: #538d4e; /* Slightly darker green on hover */
+  text-decoration: underline;
+}
+
+/* --- Table Styles --- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 40ch;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8rem;
+  color: #787c7e;
+  text-transform: uppercase;
+  border-bottom: 1px solid #d3d6da;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #1a1a1b;
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none; /* Removes the bottom border on the very last row */
+}
+
+.highlightRow {
+  background-color: #f4fdf4; /* Very soft green background for the current user */
+}
+
+/* --- Table Columns & Badges --- */
+.rankCol {
+  width: 10%;
+  font-weight: 700;
+  color: #787c7e;
+  text-align: left;
+}
+
+.nameCol {
+  /* width: 60%; */
+  font-weight: 500;
+  text-align: left;
+}
+
+.scoreCol {
+  width: 15%;
+  text-align: right;
 }
 
 .youBadge {
   font-size: 0.75rem;
   color: #6aaa64;
-  font-weight: bold;
+  font-weight: 700;
   margin-left: 0.5rem;
+  background-color: #e8f5e9;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.guessPill {
+  display: inline-block;
+  background-color: #6aaa64;
+  color: #ffffff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Optional: Add a subtle inner shadow so users know they can scroll */
+.tableContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: #d3d6da;
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background-color: #f8f9fa;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+}
+
+.header {
+  margin: 2rem 0;
+  width: min(600px, 90%);
 }

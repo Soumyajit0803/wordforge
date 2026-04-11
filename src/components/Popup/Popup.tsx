@@ -107,7 +107,7 @@ export default function Popup({
           {!session ? (
             <AppButton onClick={handleLoginClick} text="Save Game" />
           ) : (
-            <AppButton routeURL={`/play/${challengeId}/leaderboard`} text="View Leaderboard" />
+            <AppButton routeURL={`/leaderboard?challenge=${challengeId}`} text="View Leaderboard" />
           )}
           <AppButton onClick={onClose} text="Close" />
         </div>

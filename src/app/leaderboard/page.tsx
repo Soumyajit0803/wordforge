@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import styles from "./leaderboard.module.css";
 import Link from "next/link";
 import LeaderboardClient from "./LeaderboardClient"; // We will create this next!
+import {Suspense} from "react";
 
 export default async function LeaderboardPage() {
   const session = await getServerSession(authOptions);
@@ -100,11 +101,13 @@ export default async function LeaderboardPage() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <h1>Your Leaderboards</h1>
+        <h1>Leaderboard</h1>
         <p>Rankings for the challenges you've completed.</p>
       </header>
 
-      <LeaderboardClient groupedData={groupedData} currentUserId={userId} />
+      <Suspense fallback={<p style={{ textAlign: "center" }}>Loading your ranks...</p>}>
+        <LeaderboardClient groupedData={groupedData} currentUserId={userId} />
+      </Suspense>
     </main>
   );
 }

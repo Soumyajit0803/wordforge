@@ -48,7 +48,7 @@ const AppButton = ({
         fontSize: "1rem",
         fontWeight: "bold",
         cursor: "pointer",
-        width: "min(100%, 20ch)",
+        width: "100%",
         textTransform: "uppercase",
         textDecoration: "none",
         transition: "background-color 0.2s",
