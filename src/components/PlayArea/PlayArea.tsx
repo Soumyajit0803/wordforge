@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import styles from "./play.module.css";
+import styles from "./PlayArea.module.css";
 import Popup from "@/components/Popup/Popup";
 import { CornerDownLeftIcon, Delete } from "lucide-react";
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 // The hardcoded target word for testing
-const TARGET_WORD = "ghost";
+
 let wordSet: Set<string> = new Set();
 
 const KEYBOARD_ROWS = [
@@ -25,9 +25,20 @@ export const enum Evaluation {
   CORRECT = 2,
 }
 
-export default function PlayArea() {
+interface PlayAreaProps {
+  targetWord: string;
+  challengerName: string;
+  challengeId: string;
+}
+
+export default function PlayArea({
+  targetWord,
+  challengerName,
+  challengeId,
+}: PlayAreaProps) {
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(""));
   const [evaluations, setEvaluations] = useState<Evaluation[][]>(
@@ -40,19 +51,45 @@ export default function PlayArea() {
   >({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   useEffect(() => {
+    // 1. Fetch Dictionary
     fetch("/words.json")
       .then((res) => res.json())
       .then((data: string[]) => {
         wordSet = new Set(data.map((w) => w.toLowerCase()));
         setDictionaryLoaded(true);
       });
-  }, []);
+
+    // 2. Hydrate Game State from Local Storage
+    const savedState = localStorage.getItem(`wordle_state_${challengeId}`);
+
+    if (savedState) {
+      const parsed = JSON.parse(savedState);
+      setGuesses(parsed.guesses);
+      setEvaluations(parsed.evaluations);
+      setCurrentGuessIndex(parsed.currentGuessIndex);
+      setGameStatus(parsed.gameStatus);
+      setKeyboardStatus(parsed.keyboardStatus);
+
+      // If they already finished this game in a previous session, open the modal
+      if (parsed.gameStatus !== "playing") {
+        setIsModalOpen(true);
+      }
+    }
+
+    // 3. Mark as safe to render
+    setIsHydrated(true);
+  }, [challengeId]);
+
+  // 2. SAVE TO LOCAL STORAGE ON GAME OVER
+  const handleGameOver = (status: "won" | "lost") => {
+    setGameStatus(status);
+    setIsModalOpen(true);
+  };
 
   const evaluateGuess = (guess: string) => {
     const result: Evaluation[] = Array(WORD_LENGTH).fill(Evaluation.ABSENT);
-    const targetLetters = TARGET_WORD.split("");
+    const targetLetters = targetWord.split("");
     const guessLetters = guess.split("");
 
     // Pass 1: Find exact matches (Green / Correct)
@@ -132,13 +169,10 @@ export default function PlayArea() {
           const isWin = currentEval.every((s) => s === Evaluation.CORRECT);
 
           if (isWin) {
-            setGameStatus("won");
-            setIsModalOpen(true);
+            handleGameOver("won");
           } else if (currentGuessIndex === MAX_GUESSES - 1) {
-            setGameStatus("lost");
-            setIsModalOpen(true);
+            handleGameOver("lost");
           } else {
-            // THIS IS THE KEY: Increment the row index
             setCurrentGuessIndex((prev) => prev + 1);
           }
         }
@@ -150,7 +184,7 @@ export default function PlayArea() {
         });
       }
     },
-    [currentGuessIndex, gameStatus, guesses], // Added 'guesses' to dependencies!
+    [currentGuessIndex, gameStatus, guesses, challengeId], // Added 'guesses' to dependencies!
   );
 
   // Handle Physical Keyboard
@@ -165,9 +199,43 @@ export default function PlayArea() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onKeyPress]);
 
+  // Auto-Save Game State
+  useEffect(() => {
+    // Don't overwrite our saved data with empty default state before hydration finishes!
+    if (!isHydrated) return;
+
+    const stateToSave = {
+      guesses,
+      evaluations,
+      currentGuessIndex,
+      gameStatus,
+      keyboardStatus,
+    };
+
+    localStorage.setItem(
+      `wordle_state_${challengeId}`,
+      JSON.stringify(stateToSave),
+    );
+  }, [
+    guesses,
+    evaluations,
+    currentGuessIndex,
+    gameStatus,
+    keyboardStatus,
+    isHydrated,
+    challengeId,
+  ]);
+
+  if (!isHydrated) {
+    return <main className={styles.container}>Loading board...</main>;
+  }
   return (
     <main className={styles.container}>
       {/* Game Board */}
+      <div className={styles.challengeBanner}>
+        Challenged by{" "}
+        <span className={styles.challengerName}>{challengerName}</span>
+      </div>
       <div className={styles.board}>
         {guesses.map((guess, rowIndex) => {
           const isCurrentRow = rowIndex === currentGuessIndex;
@@ -194,7 +262,10 @@ export default function PlayArea() {
                 }
 
                 return (
-                  <div key={colIndex} className={`${styles.tile} ${tileClass} ${isShaking && isCurrentRow ? styles.shake : ""}`}>
+                  <div
+                    key={colIndex}
+                    className={`${styles.tile} ${tileClass} ${isShaking && isCurrentRow ? styles.shake : ""}`}
+                  >
                     {letter}
                   </div>
                 );
@@ -208,9 +279,11 @@ export default function PlayArea() {
       {gameStatus !== "playing" && (
         <Popup
           gameStatus={gameStatus}
-          targetWord={TARGET_WORD}
+          targetWord={targetWord}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          chances={currentGuessIndex + 1}
+          challengeId={challengeId}
         />
       )}
 

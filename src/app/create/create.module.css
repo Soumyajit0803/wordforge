@@ -1,0 +1,201 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  font-family: inherit;
+  text-align: center;
+}
+
+.container h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.container p {
+  color: #787c7e;
+  margin-bottom: 2rem;
+}
+
+/* The core input field */
+.wordInput {
+  width: 100%;
+  max-width: 300px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 2px solid #d3d6da;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+  /* This pushes the letters apart to mimic tiles */
+  letter-spacing: 0.75rem; 
+  /* Adjusts for the off-center feeling letter-spacing causes */
+  padding-left: calc(1rem + 0.75rem); 
+}
+
+.wordInput:focus {
+  border-color: #787c7e;
+}
+
+.wordInput:disabled {
+  background-color: #f3f4f6;
+  color: #787c7e;
+  cursor: not-allowed;
+  border-color: #d3d6da;
+}
+
+.errorText {
+  color: #e63946; /* A soft red for errors */
+  font-weight: 500;
+  margin-bottom: 1rem;
+  min-height: 24px; /* Prevents the button from jumping when error appears */
+}
+
+.createBtn {
+  background-color: #6aaa64;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  width: 100%;
+  max-width: 300px;
+}
+
+.createBtn:hover:not(:disabled) {
+  background-color: #538d4e;
+}
+
+.createBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.createBtn:disabled {
+  background-color: #d3d6da;
+  cursor: not-allowed;
+}
+
+/* The Share Link UI */
+.shareBox {
+  width: 100%;
+  max-width: 400px;
+  background-color: #f8f9fa;
+  border: 1px solid #d3d6da;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.shareBox p {
+  color: #111;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.linkWrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.linkWrapper input {
+  flex: 1;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  border: 1px solid #d3d6da;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  /* Prevents the user from typing in the read-only box */
+  pointer-events: none; 
+}
+
+.linkWrapper button {
+  background-color: #787c7e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.linkWrapper button:hover {
+  background-color: #565758;
+}
+
+/* Subtle entrance animation for the link box */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Update the base copy button styling if needed */
+.copyBtn {
+  background-color: #787c7e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.copyBtn:hover {
+  background-color: #565758;
+}
+
+/* New success state for the button */
+.copyBtnSuccess {
+  background-color: #6aaa64; /* Wordle Correct Green */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+/* The popping animation for the checkmark */
+.popIcon {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

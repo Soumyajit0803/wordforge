@@ -1,0 +1,44 @@
+/* Add to leaderboard.module.css */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #d3d6da;
+}
+
+.dropdownLabel {
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: #787c7e;
+  text-transform: uppercase;
+}
+
+.dropdown {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid #d3d6da;
+  border-radius: 6px;
+  background-color: white;
+  color: #1a1a1b;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.dropdown:focus {
+  border-color: #6aaa64;
+}
+
+.youBadge {
+  font-size: 0.75rem;
+  color: #6aaa64;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}

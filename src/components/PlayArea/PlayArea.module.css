@@ -1,0 +1,169 @@
+/* app/play/play.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* The Grid */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 1rem;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+/* Challenge Banner */
+.challengeBanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #787c7e;
+  letter-spacing: 0.05em;
+  width: fit-content;
+}
+
+.challengerName {
+  color: #1a1a1b;
+  font-weight: bold;
+  margin-left: 6px;
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+}
+
+.tile {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #d3d6da;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition :background-color ease 0.3s;
+}
+
+.tileActive {
+  border-color: #878a8c;
+}
+
+/* The On-Screen Keyboard */
+.keyboard {
+  width: 90%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.keyboardRow {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+
+}
+
+.key {
+  font-family: inherit;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  height: 40px;
+  width: 40px;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #d3d6da;
+  color: #1a1a1b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  text-transform: uppercase;
+  user-select: none;
+  transition: background-color 0.1s;
+
+  /* --- THE MOBILE PATCH --- */
+  user-select: none; /* Stops accidental text selection */
+  -webkit-user-select: none; /* Safari support */
+  touch-action: manipulation; /* Kills the 300ms tap delay and disables double-tap zoom */
+  -webkit-tap-highlight-color: transparent; /* Removes the ugly blue flash on iOS/Android */
+  /* ------------------------ */
+}
+
+.key:active {
+  background-color: #878a8c;
+  color: white;
+}
+
+.keyLarge {
+  width: 65px;
+  font-size: 0.7rem
+}
+
+/* --- Game Logic Colors --- */
+/* For the Grid Tiles */
+.tileCorrect {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: #ffffff;
+}
+
+.tilePresent {
+  background-color: var(--yellow);
+  border-color: var(--yellow);
+  color: #ffffff;
+}
+
+.tileAbsent {
+  background-color: #787c7e;
+  border-color: #787c7e;
+  color: #ffffff;
+}
+
+/* For the Keyboard Keys */
+.keyCorrect {
+  background-color: var(--green) !important;
+  color: #ffffff !important;
+}
+
+.keyPresent {
+  background-color: var(--yellow) !important;
+  color: #ffffff !important;
+}
+
+.keyAbsent {
+  background-color: #787c7e !important;
+  color: #ffffff !important;
+}
+
+/* Game Over Message */
+.gameOverBanner {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: #1a1a1b;
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.shake {
+  animation: shake 0.5s linear;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+

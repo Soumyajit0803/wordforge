@@ -52,6 +52,7 @@
   justify-content: center;
   gap: 0.5rem;
   flex-direction: column;
+  margin-top: 2rem;
 }
 
 @keyframes fadeIn {

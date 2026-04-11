@@ -1,0 +1,140 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: inherit;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #787c7e;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #787c7e;
+}
+
+.boardsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.boardCard {
+  border: 1px solid #d3d6da;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #d3d6da;
+}
+
+.wordTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.1rem;
+  color: #1a1a1b;
+}
+
+.playLink {
+  font-size: 0.875rem;
+  color: #6aaa64;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.playLink:hover {
+  text-decoration: underline;
+}
+
+/* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  color: #787c7e;
+  text-transform: uppercase;
+  border-bottom: 1px solid #d3d6da;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.highlightRow {
+  background-color: #f4fdf4; /* Very light green to highlight the current user */
+}
+
+.rankCol {
+  width: 15%;
+  font-weight: bold;
+  color: #787c7e;
+  display: flex;
+  align-items: center;
+}
+
+.nameCol {
+  width: 60%;
+  font-weight: 500;
+  color: #1a1a1b;
+}
+
+.scoreCol {
+  width: 25%;
+  text-align: right;
+}
+
+.guessPill {
+  display: inline-block;
+  background-color: #6aaa64;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.primaryBtn {
+  display: inline-block;
+  background-color: #6aaa64;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 1rem;
+}
