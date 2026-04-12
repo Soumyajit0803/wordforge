@@ -1,13 +1,10 @@
-/* leaderboard.module.css */
-
-/* --- Container & Controls --- */
 .wrapper {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   width: 95%;
   max-width: 600px;
-  margin: 0 auto;
+  margin-top: 5rem;
 }
 
 .controls {
@@ -43,7 +40,7 @@
 
 .dropdown:focus,
 .dropdown:hover {
-  border-color: #6aaa64; /* Wordle green focus */
+  border-color: var(--blue);
 }
 
 /* --- Card & Header --- */
@@ -71,16 +68,28 @@
 }
 
 .playLink {
-  color: #6aaa64;
+  color: var(--blue);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 700;
-  transition: color 0.2s ease;
+  transition: 0.2s ease;
+  position: relative;
 }
 
-.playLink:hover {
-  color: #538d4e; /* Slightly darker green on hover */
-  text-decoration: underline;
+.playLink::before {
+  content: "";
+  width: 100%;
+  height: 1.5px;
+  background-color: var(--blue);
+  bottom: -1px;
+  position: absolute;
+  transform: scaleX(0);
+  transition: transform 0.1s ease;
+  transform-origin: left;
+}
+
+.playLink:hover::before {
+  transform: scaleX(1);
 }
 
 /* --- Table Styles --- */
@@ -111,7 +120,7 @@
 }
 
 .highlightRow {
-  background-color: #f4fdf4; /* Very soft green background for the current user */
+  background-color: var(--blue-bg);
 }
 
 /* --- Table Columns & Badges --- */
@@ -135,17 +144,14 @@
 
 .youBadge {
   font-size: 0.75rem;
-  color: #6aaa64;
+  color: var(--blue);
   font-weight: 700;
   margin-left: 0.5rem;
-  background-color: #e8f5e9;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
 }
 
 .guessPill {
   display: inline-block;
-  background-color: #6aaa64;
+  background-color: var(--blue);
   color: #ffffff;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -180,9 +186,11 @@
   flex-direction: column;
   text-align: center;
   width: 100%;
+  margin-top: 3rem;
+
 }
 
 .header {
   margin: 2rem 0;
-  width: min(600px, 90%);
+  width: min(400px, 90%);
 }

@@ -3,11 +3,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
 import { leaderboard, challenges, games } from "@/app/db/schema";
 import { eq, inArray, asc } from "drizzle-orm";
-import { Link as LinkIcon } from "lucide-react";
-import Link from "next/link";
-import styles from "../leaderboard/leaderboard.module.css"; // Reuse existing styles
-import LeaderboardClient from "../leaderboard/LeaderboardClient"; // Reuse the Client Component!
+import styles from "../leaderboard/leaderboard.module.css";
+import LeaderboardClient from "../leaderboard/LeaderboardClient";
 import AppButton from "@/components/Buttons/AppButton";
+import { PackageOpen } from "lucide-react";
 
 export default async function MyChallengesPage() {
   const session = await getServerSession(authOptions);
@@ -15,9 +14,11 @@ export default async function MyChallengesPage() {
   if (!session || !session.user) {
     return (
       <main className={styles.container}>
-        <h2>Members Only</h2>
-        <p>Please log in to view your created challenges.</p>
-        <Link href="/api/auth/signin" className={styles.primaryBtn}>Log In</Link>
+        <div className={styles.header}>
+          <h2>Members Only</h2>
+          <p>Please log in to view your created challenges.</p>
+        </div>
+        <LeaderboardClient groupedData={{}} currentUserId={""} /> {/* Show empty state of the same component for consistency */}
       </main>
     );
   }
@@ -40,11 +41,17 @@ export default async function MyChallengesPage() {
   if (myChallengeIds.length === 0) {
     return (
       <main className={styles.container}>
-        <div className={styles.emptyState}>
+        <div className={styles.header}>
+          <PackageOpen size={100} color="#d3d6da" />
           <h2>No Challenges Created</h2>
           <p>You haven't stumped anyone yet. Go create a word!</p>
-          <AppButton text={"Create Challenge"} routeURL="/create" />
         </div>
+        <AppButton
+          text={"Create Challenge"}
+          routeURL="/challenges/create"
+          fixWidth
+          variant="primary"
+        />
       </main>
     );
   }
@@ -62,9 +69,16 @@ export default async function MyChallengesPage() {
     .orderBy(asc(leaderboard.guessesUsed));
 
   // 3. Group the data for the Client Component
-  type ScoreEntry = { playerName: string; playerId: string; guessesUsed: number };
-  type GroupedData = Record<string, { word: string; challenger: string; scores: ScoreEntry[] }>;
-  
+  type ScoreEntry = {
+    playerName: string;
+    playerId: string;
+    guessesUsed: number;
+  };
+  type GroupedData = Record<
+    string,
+    { word: string; challenger: string; scores: ScoreEntry[] }
+  >;
+
   const groupedData: GroupedData = {};
 
   // Initialize ALL created challenges first (so they show up even with 0 plays)

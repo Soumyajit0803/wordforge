@@ -3,11 +3,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
 import { leaderboard, challenges, games, users } from "@/app/db/schema";
 import { eq, inArray, asc } from "drizzle-orm";
-import { Trophy } from "lucide-react";
+import { PackageOpen, Trophy } from "lucide-react";
 import styles from "./leaderboard.module.css";
-import Link from "next/link";
 import LeaderboardClient from "./LeaderboardClient"; // We will create this next!
-import {Suspense} from "react";
+import { Suspense } from "react";
 
 export default async function LeaderboardPage() {
   const session = await getServerSession(authOptions);
@@ -15,11 +14,11 @@ export default async function LeaderboardPage() {
   if (!session || !session.user) {
     return (
       <main className={styles.container}>
-        <h2>Members Only</h2>
-        <p>Please log in to view your leaderboards.</p>
-        <Link href="/api/auth/signin" className={styles.primaryBtn}>
-          Log In
-        </Link>
+        <div className={styles.header}>
+          <h2>Members Only</h2>
+          <p>Please log in to view leaderboards.</p>
+        </div>
+        <LeaderboardClient groupedData={{}} currentUserId={""} />
       </main>
     );
   }
@@ -39,8 +38,8 @@ export default async function LeaderboardPage() {
   if (playedChallengeIds.length === 0) {
     return (
       <main className={styles.container}>
-        <div className={styles.emptyState}>
-          <Trophy size={48} color="#d3d6da" />
+        <div className={styles.header}>
+          <PackageOpen size={100} color="#d3d6da" />
           <h2>No Data Yet</h2>
           <p>
             You haven't completed any challenges. Go play some games to rank up!
@@ -105,7 +104,9 @@ export default async function LeaderboardPage() {
         <p>Rankings for the challenges you've completed.</p>
       </header>
 
-      <Suspense fallback={<p style={{ textAlign: "center" }}>Loading your ranks...</p>}>
+      <Suspense
+        fallback={<p style={{ textAlign: "center" }}>Loading your ranks...</p>}
+      >
         <LeaderboardClient groupedData={groupedData} currentUserId={userId} />
       </Suspense>
     </main>

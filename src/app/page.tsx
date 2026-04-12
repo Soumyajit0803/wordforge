@@ -1,12 +1,10 @@
 "use client";
 
 import { useSession, signIn, signOut } from "next-auth/react";
-import Link from "next/link";
 import styles from "./page.module.css";
-import ToggleButton from "@/components/Buttons/ToggleButton";
 import AppButton from "@/components/Buttons/AppButton";
 
-const GoogleIcon = () => {
+export const GoogleIcon = () => {
   return (
     <svg
       width="24"
@@ -75,12 +73,13 @@ export default function Home() {
               </div>
 
               <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <AppButton routeURL="/play" text="Daily Challenge" />
-                <AppButton routeURL="/create" text="Create challenge" />
+                <AppButton variant="primary" routeURL="/play" text="Daily Challenge" />
+                <AppButton variant="primary" routeURL="/create" text="Create challenge" />
 
                 <AppButton
                   onClick={() => signOut({ callbackUrl: "/" })}
                   text="Logout"
+                  variant="danger"
                 />
               </div>
             </>

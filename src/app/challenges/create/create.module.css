@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
   max-width: 500px;
-  margin: 0 auto;
   padding: 4rem 1rem;
   font-family: inherit;
   text-align: center;
@@ -21,11 +20,10 @@
 
 /* The core input field */
 .wordInput {
-  width: 100%;
-  max-width: 300px;
+  width: calc(1.8*5ch);
   font-size: 2.5rem;
   font-weight: bold;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -33,10 +31,7 @@
   border-radius: 8px;
   outline: none;
   transition: border-color 0.2s;
-  /* This pushes the letters apart to mimic tiles */
   letter-spacing: 0.75rem; 
-  /* Adjusts for the off-center feeling letter-spacing causes */
-  padding-left: calc(1rem + 0.75rem); 
 }
 
 .wordInput:focus {
@@ -58,7 +53,7 @@
 }
 
 .createBtn {
-  background-color: #6aaa64;
+  background-color: var(--blue);
   color: white;
   font-size: 1.2rem;
   font-weight: bold;
@@ -71,16 +66,16 @@
   max-width: 300px;
 }
 
-.createBtn:hover:not(:disabled) {
+/* .createBtn:hover:not(:disabled) {
   background-color: #538d4e;
-}
+} */
 
 .createBtn:active:not(:disabled) {
   transform: scale(0.98);
 }
 
 .createBtn:disabled {
-  background-color: #d3d6da;
+  background-color: var(--blue-bg);
   cursor: not-allowed;
 }
 

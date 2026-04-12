@@ -18,7 +18,7 @@
   flex-direction: column;
   border :1px solid var(--foreground);
   width: min(400px, 100%);
-  margin-top: 3rem;
+  margin-top: 5rem;
 }
 
 .main p {

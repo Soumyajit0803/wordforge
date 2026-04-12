@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import styles from "./create.module.css";
 import { Copy, Check } from "lucide-react"; // Import Check
+import AppButton from "@/components/Buttons/AppButton";
+import { GoogleIcon } from "@/app/page";
 
 export default function CreateChallenge() {
   const { data: session, status } = useSession();
@@ -85,16 +87,11 @@ export default function CreateChallenge() {
   if (status === "unauthenticated") {
     return (
       <main className={styles.container}>
-        <h1>Members Only</h1>
-        <p>You must be logged in to create a challenge.</p>
-        <button
-          className={styles.createBtn}
-          onClick={() =>
-            signIn("google", { callbackUrl: window.location.href })
-          }
-        >
-          Log In / Sign Up
-        </button>
+        <div className={styles.header}>
+          <h1>Members Only</h1>
+          <p>You must be logged in to create a challenge.</p>
+        </div>
+        <AppButton fixWidth onClick={() => signIn("google", { callbackUrl: window.location.href })} text="Log in with Google" startIcon={<GoogleIcon />} />
       </main>
     );
   }
@@ -106,6 +103,7 @@ export default function CreateChallenge() {
 
       <input
         type="text"
+        name="word"
         maxLength={5}
         value={word}
         onChange={(e) => setWord(e.target.value.toUpperCase())}

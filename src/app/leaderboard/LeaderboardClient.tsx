@@ -5,6 +5,9 @@ import { Medal } from "lucide-react";
 import Link from "next/link";
 import styles from "./leaderboard.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
+import { GoogleIcon } from "../page";
+import { signIn } from "next-auth/react";
+import AppButton from "@/components/Buttons/AppButton";
 
 // Define the shape of our props
 type ScoreEntry = { playerName: string; playerId: string; guessesUsed: number };
@@ -23,6 +26,11 @@ export default function LeaderboardClient({
   currentUserId,
 }: LeaderboardClientProps) {
   // Extract all challenge IDs to use as keys/options
+  if(!groupedData || Object.keys(groupedData).length === 0) {
+    return (
+      <AppButton onClick={() => signIn("google", { callbackUrl: window.location.href })} text="Log in with Google" startIcon={<GoogleIcon />} fixWidth />
+    );
+  }
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -99,10 +107,8 @@ export default function LeaderboardClient({
                 return (
                   <tr key={index} className={isMe ? styles.highlightRow : ""}>
                     <td className={styles.rankCol}>
-                      {index === 0 ? (
-                        <Medal size={18} color="#c9b458" />
-                      ) : (
-                        `#${index + 1}`
+                      {(
+                        `${index + 1}.`
                       )}
                     </td>
                     <td className={styles.nameCol}>

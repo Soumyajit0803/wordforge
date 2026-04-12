@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 import styles from "./Popup.module.css";
-import { Frown, Trophy } from "lucide-react";
+import { Frown, Trophy, X } from "lucide-react";
 import AppButton from "../Buttons/AppButton";
+import { GoogleIcon } from "@/app/page";
 
 interface PopupProps {
   gameStatus: "won" | "lost";
@@ -14,6 +15,8 @@ interface PopupProps {
   chances: number;
   challengeId: string;
 }
+
+const askToLogin = "Log in to save your score and see where you stand in the wordforge arena!";
 
 export default function Popup({
   gameStatus,
@@ -81,7 +84,8 @@ export default function Popup({
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <div className={isWon ? styles.iconWon : styles.iconLost}>
+        <div onClick={onClose} className={styles.closeButton}><X size={15} /></div>
+        <div className={styles.statusIcon}>
           {isWon ? <Trophy size={48} /> : <Frown size={48} />}
         </div>
 
@@ -102,14 +106,17 @@ export default function Popup({
           </p>
         )}
 
+        {
+          !session && <p style={{paddingTop: "1rem"}}>{askToLogin}</p>
+        }
+
         {/* Dynamic Action Area */}
         <div className={styles.buttonGroup}>
           {!session ? (
-            <AppButton onClick={handleLoginClick} text="Save Game" />
+            <AppButton onClick={handleLoginClick} text="Log in with Google" startIcon={<GoogleIcon />} />
           ) : (
             <AppButton routeURL={`/leaderboard?challenge=${challengeId}`} text="View Leaderboard" />
           )}
-          <AppButton onClick={onClose} text="Close" />
         </div>
       </div>
     </div>

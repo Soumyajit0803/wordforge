@@ -12,7 +12,7 @@
   animation: fadeIn 0.3s ease-in;
 }
 
-.modal {
+.modal, .helpModal {
   background: white;
   padding: 2.5rem;
   border-radius: 12px;
@@ -20,8 +20,37 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transform: scale(1);
   animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  width: min(25rem, 90%);
 }
 
+.helpModal {
+  width: min(50rem, 90%);
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all ease 0.2s;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+}
+
+.closeButton:hover {
+  background: rgb(203, 203, 203);
+}
+
+.statusIcon {
+  margin-top: 1.5rem;
+}
 .winTitle {
   color: var(--blue);
   margin-top: 0;
@@ -74,3 +103,92 @@
     opacity: 1;
   }
 }
+
+.helpTitle {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+}
+
+.helpContent {
+  text-align: left;
+  font-size: 0.875rem;
+  color: #1a1a1b;
+  margin-bottom: 1.5rem;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.explanation, .examplesSection {
+  flex: 1;
+}
+
+.helpContent ul {
+  padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.explanation p {
+  padding: 1rem 0;
+}
+
+.examplesTitle {
+  margin-bottom: 0.5rem;
+}
+
+/* --- The Tiles --- */
+.wordRow {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #1a1a1b;
+  border: 2px solid #d3d6da; /* Default empty/unanswered state */
+  background-color: transparent;
+}
+
+/* The Colored States */
+.correct {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: #ffffff;
+}
+
+.present {
+  background-color: var(--yellow);
+  border-color: var(--yellow);
+  color: #ffffff;
+}
+
+.absent {
+  background-color: #787c7e; /* The classic dark gray */
+  border-color: #787c7e;
+  color: #ffffff;
+}
+
+.buttonWrapper {
+  margin-top: 1.5rem;
+}
+
+@media only screen and (max-width: 720px) {
+  .helpContent {
+    flex-direction: column;
+  }
+}
+

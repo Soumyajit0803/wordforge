@@ -1,13 +1,94 @@
 .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.7rem;
-    border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem;
+  border: 1px solid #000;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1;
+  background: #fff;
 }
 .section {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 100%;
+  padding: 5px;
+  transition: all ease 0.2s;
+  cursor: pointer;
+}
+.iconButton:hover {
+  background-color: rgb(203, 203, 203);
+}
+
+.iconButton.selected {
+  background-color: var(--blue);
+  color: #fff;
+}
+
+.heading {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.forMobile {
+  display: none;
+  border: 1px solid red;
+}
+
+.drawer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: first baseline;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 2rem 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--background);
+  border: 1px solid red;
+  height: 100vh;
+  width: 100vw;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 0.5rem;
+  width: 100%;
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+@media only screen and (max-width: 480px) {
+  .section {
+    display: none;
+  }
+  .forMobile {
+    display: contents;
+  }
+  .iconButton {
+    border-radius: 0;
+  }
+  .iconButton.selected {
+    color: var(--blue);
+    font-weight: bold;
+    background-color: transparent;
+  }
 }
