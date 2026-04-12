@@ -74,9 +74,7 @@ export default function Home() {
               </div>
 
               <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <AppButton variant="primary" routeURL="/play" text="Daily Challenge" />
-                <AppButton variant="primary" routeURL="/create" text="Create challenge" />
-
+                <AppButton variant="primary" routeURL="/challenges/create" text="Create challenge" />
                 <AppButton
                   onClick={() => signOut({ callbackUrl: "/" })}
                   text="Logout"
