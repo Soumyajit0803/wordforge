@@ -10,7 +10,7 @@ import { Suspense } from "react";
 
 export async function generateMetadata() {
   return {
-    title: "WordForge | Leaderboard",
+    title: "ForgeWord | Leaderboard",
     description: "View your rankings on the challenges you've completed!",
   };
 }

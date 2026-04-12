@@ -10,7 +10,7 @@ import { PackageOpen } from "lucide-react";
 
 export async function generateMetadata() {
   return {
-    title: "WordForge | My Challenges",
+    title: "ForgeWord | My Challenges",
     description: "View the challenges you've created and see how others have fared against them!",
   };
 }

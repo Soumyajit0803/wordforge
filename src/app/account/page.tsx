@@ -6,7 +6,7 @@ import AccountClient from "./AccountClient";
 // 1. Export your metadata safely on the server
 export function generateMetadata(): Metadata {
   return {
-    title: "WordForge | My Account",
+    title: "ForgeWord | My Account",
     description: "Manage your account settings.",
   };
 }

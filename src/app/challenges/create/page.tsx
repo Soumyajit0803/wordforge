@@ -3,7 +3,7 @@ import CreateChallengeClient from "./CreateChallengeClient";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "WordForge | Create Challenge",
+    title: "ForgeWord | Create Challenge",
     description: "Create a new word challenge.",
   };
 }

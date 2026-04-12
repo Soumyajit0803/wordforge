@@ -5,26 +5,26 @@ import { Providers } from "./providers";
 import Navbar from "@/components/Navbar/Navbar";
 
 export const metadata: Metadata = {
-  title: "WordForge",
-  description: "Create custom word puzzles, challenge your friends, and climb the leaderboard in WordForge.",
-  applicationName: "WordForge",
+  title: "ForgeWord",
+  description: "Create custom word puzzles, challenge your friends, and climb the leaderboard in ForgeWord.",
+  applicationName: "ForgeWord",
   openGraph: {
-    title: "WordForge",
+    title: "ForgeWord",
     description: "Create custom word puzzles and challenge your friends!",
-    url: "https://wordforge.vercel.app", // Update this when you deploy!
-    siteName: "WordForge",
+    url: "https://forgeword.vercel.app", // Update this when you deploy!
+    siteName: "ForgeWord",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "WordForge",
+    title: "ForgeWord",
     description: "Create custom word puzzles and challenge your friends!",
   },
   authors: [{ name: "Soumyajit Karmakar" }],
   generator: "Next.js",
   keywords: [
     "wordle",
-    "wordforge",
+    "forgeword",
     "word game",
     "word puzzle",
     "wordle challenge",
@@ -56,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="apple-mobile-web-app-title" content="WordForge" />
+        <meta name="apple-mobile-web-app-title" content="ForgeWord" />
       </head>
       <body className={`${robotoMono.variable}`}>
         <Providers>

@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'WordForge',
-    short_name: 'WordForge',
+    name: 'ForgeWord',
+    short_name: 'ForgeWord',
     description: 'Challenge your friends to custom word puzzles.',
     start_url: '/',
     display: 'standalone', // This hides the browser UI when installed!

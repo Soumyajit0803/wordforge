@@ -63,7 +63,7 @@ const Navbar = () => {
         </div>
       </div>
       <Link href="/" className={styles.heading}>
-        <h2>WordForge</h2>
+        <h2>ForgeWord</h2>
       </Link>
       <div className={styles.section}>
         <Link
@@ -107,7 +107,7 @@ const Navbar = () => {
       </div>
       <div className={styles.drawer + (drawerOpen ? ` ${styles.open}` : "")}>
         <div className={styles.drawerHeader}>
-          <h2>WordForge</h2>
+          <h2>ForgeWord</h2>
           <div className={styles.iconButton}>
             <X size={24} onClick={() => setDrawerOpen(false)} />
           </div>

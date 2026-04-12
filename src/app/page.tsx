@@ -50,7 +50,7 @@ export default function Home() {
       <div className={styles.wrapper}>
         {!session?.user && (
           <p>
-            Love wordle? Try WordForge, a competitive twist on the classic word game. Challenge friends, climb the leaderboards, and forge your path to word mastery. Play now and see if you have what it takes to be the ultimate WordForge champion!
+            Love wordle? Try ForgeWord, a competitive twist on the classic word game. Challenge friends, climb the leaderboards, and forge your path to word mastery. Play now and see if you have what it takes to be the ultimate ForgeWord champion!
           </p>
         )}
 

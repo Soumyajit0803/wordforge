@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export async function generateMetadata() {
   return {
-    title: "WordForge | Play Challenge",
+    title: "ForgeWord | Play Challenge",
     description: "Take on the word challenge and see if you can guess the target word!",
   };
 }

@@ -16,7 +16,7 @@ interface PopupProps {
   challengeId: string;
 }
 
-const askToLogin = "Log in to save your score and see where you stand in the wordforge arena!";
+const askToLogin = "Log in to save your score and see where you stand in the forgeword arena!";
 
 export default function Popup({
   gameStatus,
