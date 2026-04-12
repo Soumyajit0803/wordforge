@@ -69,6 +69,7 @@ export default function Home() {
             <>
               <div className={styles.welcomeBox}>
                 <p className={styles.promptText}>Welcome back,</p>
+                {session.user.image && <img src={session.user.image} alt="Profile" className={styles.profilePic} referrerPolicy="no-referrer" />}
                 <p className={styles.welcomeName}>{session.user.name}</p>
               </div>
 

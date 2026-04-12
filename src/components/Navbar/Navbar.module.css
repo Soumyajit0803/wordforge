@@ -29,7 +29,12 @@
 .iconButton:hover {
   background-color: rgb(203, 203, 203);
 }
-
+.profilePic {
+  width: 32px; 
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 .iconButton.selected {
   background-color: var(--blue);
   color: #fff;

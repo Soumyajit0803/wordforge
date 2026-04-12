@@ -8,6 +8,13 @@ import styles from "./leaderboard.module.css";
 import LeaderboardClient from "./LeaderboardClient"; // We will create this next!
 import { Suspense } from "react";
 
+export async function generateMetadata() {
+  return {
+    title: "WordForge | Leaderboard",
+    description: "View your rankings on the challenges you've completed!",
+  };
+}
+
 export default async function LeaderboardPage() {
   const session = await getServerSession(authOptions);
 

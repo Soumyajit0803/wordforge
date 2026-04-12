@@ -1,8 +1,14 @@
-// app/play/[id]/page.tsx
 import PlayArea from "@/components/PlayArea/PlayArea";
 import { db } from "@/app/db/index"; // Adjust this path if your db is located elsewhere
 import { challenges, games, users } from "@/app/db/schema"; // Adjust this to your schema file
 import { eq } from "drizzle-orm";
+
+export async function generateMetadata() {
+  return {
+    title: "WordForge | Play Challenge",
+    description: "Take on the word challenge and see if you can guess the target word!",
+  };
+}
 
 export default async function ChallengePage({
   params,

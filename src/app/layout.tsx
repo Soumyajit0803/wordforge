@@ -4,29 +4,37 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "@/components/Navbar/Navbar";
 
-// export const metadata: Metadata = {
-//   title: "Flynotes - Your Lightweight Note-Taking Companion",
-//   description:
-//     "A fast, secure, and minimal note-taking app built for speed and simplicity. Capture your thoughts effortlessly with Flynotes.",
-//   applicationName: "Flynotes",
-//   authors: [{ name: "Soumyajit Karmakar" }],
-//   generator: "Next.js",
-//   keywords: [
-//     "notes",
-//     "productivity",
-//     "nextjs",
-//     "clerk",
-//     "drizzle",
-//     "sonner",
-//     "react",
-//     "typescript",
-//   ],
-//   referrer: "origin-when-cross-origin",
-//   icons: {
-//     icon: "/favicon.ico",
-//     apple: "/favicon.png",
-//   },
-// };
+export const metadata: Metadata = {
+  title: "WordForge",
+  description: "Create custom word puzzles, challenge your friends, and climb the leaderboard in WordForge.",
+  applicationName: "WordForge",
+  openGraph: {
+    title: "WordForge",
+    description: "Create custom word puzzles and challenge your friends!",
+    url: "https://wordforge.vercel.app", // Update this when you deploy!
+    siteName: "WordForge",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WordForge",
+    description: "Create custom word puzzles and challenge your friends!",
+  },
+  authors: [{ name: "Soumyajit Karmakar" }],
+  generator: "Next.js",
+  keywords: [
+    "wordle",
+    "wordforge",
+    "word game",
+    "word puzzle",
+    "wordle challenge",
+    "nextjs",
+    "drizzle",
+    "react",
+    "typescript",
+  ],
+};
+
 
 export const viewport: Viewport = {
   themeColor: "#2b2b2b",
@@ -47,6 +55,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="apple-mobile-web-app-title" content="WordForge" />
+      </head>
       <body className={`${robotoMono.variable}`}>
         <Providers>
           <Navbar />
