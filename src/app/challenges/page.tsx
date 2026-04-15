@@ -1,17 +1,17 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
-import { leaderboard, challenges, games } from "@/app/db/schema";
-import { eq, inArray, asc } from "drizzle-orm";
-import styles from "../leaderboard/leaderboard.module.css";
-import LeaderboardClient from "../leaderboard/LeaderboardClient";
+import { challenges, users } from "@/app/db/schema";
+import { eq, or, and, desc } from "drizzle-orm";
+import styles from "./history.module.css";
+import DuelHistoryClient from "./DuelHistoryClient";
 import AppButton from "@/components/Buttons/AppButton";
-import { PackageOpen } from "lucide-react";
+import { Swords } from "lucide-react";
 
 export async function generateMetadata() {
   return {
-    title: "ForgeWord | My Challenges",
-    description: "View the challenges you've created and see how others have fared against them!",
+    title: "ForgeWord | My Duels",
+    description: "View your past 1v1 battle logs.",
   };
 }
 
@@ -23,99 +23,80 @@ export default async function MyChallengesPage() {
       <main className={styles.container}>
         <div className={styles.header}>
           <h2>Members Only</h2>
-          <p>Please log in to view your created challenges.</p>
+          <p>Please log in to view your match history.</p>
         </div>
-        <LeaderboardClient groupedData={{}} currentUserId={""} /> {/* Show empty state of the same component for consistency */}
       </main>
     );
   }
 
   const userId = session.user.id;
 
-  // 1. Fetch ALL challenges created by this user
-  const myCreatedChallenges = await db
+  // Fetch all completed 1v1 duels for this user
+  const myDuels = await db
     .select({
-      challengeId: challenges.id,
-      word: games.targetWord,
+      id: challenges.id,
+      creatorId: challenges.creatorId,
+      opponentId: challenges.opponentId,
+      wordForB: challenges.wordForB,
+      wordForA: challenges.wordForA,
+      playerA_Efficiency: challenges.playerA_Efficiency,
+      playerB_Efficiency: challenges.playerB_Efficiency,
+      winnerId: challenges.winnerId,
+      completedAt: challenges.completedAt,
     })
     .from(challenges)
-    .innerJoin(games, eq(challenges.gameId, games.id))
-    .where(eq(challenges.creatorId, userId));
+    .where(
+      and(
+        or(eq(challenges.creatorId, userId), eq(challenges.opponentId, userId)),
+        eq(challenges.status, "completed")
+      )
+    )
+    .orderBy(desc(challenges.completedAt));
 
-  const myChallengeIds = myCreatedChallenges.map((c) => c.challengeId);
-
-  // If they haven't created any challenges, show empty state
-  if (myChallengeIds.length === 0) {
+  if (myDuels.length === 0) {
     return (
       <main className={styles.container}>
         <div className={styles.header}>
-          <PackageOpen size={100} color="#d3d6da" />
-          <h2>No Challenges Created</h2>
-          <p>You haven't stumped anyone yet. Go create a word!</p>
+          <Swords size={80} color="#d3d6da" />
+          <h2>No Battle History</h2>
+          <p>You haven't completed any duels yet. Go set a trap or accept a challenge!</p>
         </div>
-        <AppButton
-          text={"Create Challenge"}
-          routeURL="/challenges/create"
-          fixWidth
-          variant="primary"
-        />
+        <AppButton text="Create Challenge" routeURL="/challenges/create" fixWidth />
       </main>
     );
   }
 
-  // 2. Fetch the scores for these specific challenges
-  const rawScores = await db
-    .select({
-      challengeId: leaderboard.challengeId,
-      playerName: leaderboard.playerName,
-      playerId: leaderboard.playerId,
-      guessesUsed: leaderboard.guessesUsed,
-    })
-    .from(leaderboard)
-    .where(inArray(leaderboard.challengeId, myChallengeIds))
-    .orderBy(asc(leaderboard.guessesUsed));
+  // Format the data so the client component doesn't have to do the heavy lifting
+  const formattedHistory = myDuels.map((duel) => {
+    const isCreator = duel.creatorId === userId;
+    
+    // If I am the creator, I guess wordForA. My opponent guesses wordForB.
+    const myWordToGuess = isCreator ? duel.wordForA : duel.wordForB;
+    const myIQ = isCreator ? duel.playerA_Efficiency : duel.playerB_Efficiency;
+    const opponentIQ = isCreator ? duel.playerB_Efficiency : duel.playerA_Efficiency;
+    
+    let outcome = "DRAW";
+    if (duel.winnerId === userId) outcome = "WON";
+    if (duel.winnerId !== userId && duel.winnerId !== "DRAW") outcome = "LOST";
 
-  // 3. Group the data for the Client Component
-  type ScoreEntry = {
-    playerName: string;
-    playerId: string;
-    guessesUsed: number;
-  };
-  type GroupedData = Record<
-    string,
-    { word: string; challenger: string; scores: ScoreEntry[] }
-  >;
-
-  const groupedData: GroupedData = {};
-
-  // Initialize ALL created challenges first (so they show up even with 0 plays)
-  myCreatedChallenges.forEach((challenge) => {
-    groupedData[challenge.challengeId] = {
-      word: challenge.word,
-      challenger: "Me", // The dropdown will nicely read: "WORD (from Me)"
-      scores: [],
+    return {
+      id: duel.id,
+      date: duel.completedAt?.toLocaleDateString() || "Unknown Date",
+      myWordToGuess: myWordToGuess || "???",
+      myIQ: myIQ || 0,
+      opponentIQ: opponentIQ || 0,
+      outcome,
     };
   });
 
-  // Populate the ones that actually have scores
-  rawScores.forEach((entry) => {
-    // We already initialized the array above, so we just push
-    groupedData[entry.challengeId].scores.push({
-      playerName: entry.playerName,
-      playerId: entry.playerId,
-      guessesUsed: entry.guessesUsed,
-    });
-  });
-
-  // 4. Render using the exact same Client Component
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <h1>My Challenges</h1>
-        <p>See who has attempted the words you created.</p>
+        <h1>Duel History</h1>
+        <p>Your past 1v1 matches and Efficiency IQ outcomes.</p>
       </header>
 
-      <LeaderboardClient groupedData={groupedData} currentUserId={userId} />
+      <DuelHistoryClient history={formattedHistory} />
     </main>
   );
 }

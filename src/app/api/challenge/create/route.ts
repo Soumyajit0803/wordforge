@@ -1,38 +1,35 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db/index";
-import { games, challenges } from "@/app/db/schema";
+import { challenges } from "@/app/db/schema";
 import { getServerSession } from "next-auth/next"; 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path to your auth config
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(request: Request) {
   try {
     // 1. Verify the user is actually logged in
-    const session = await getServerSession(authOptions); // pass authOptions if needed
-    
-    if (!session || !session.user || !session.user.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await getServerSession(authOptions);
 
     const body = await request.json();
-    const { targetWord } = body; // We no longer trust the frontend to send the ID
+    const { wordForB } = body; 
 
-    if (!targetWord || targetWord.length !== 5) {
+    if (!wordForB || wordForB.length !== 5) {
       return NextResponse.json({ error: "Invalid word length" }, { status: 400 });
     }
 
     // 2. Use the secure ID from the session
-    const secureCreatorId = session.user.id;
+    const secureCreatorId = session?.user?.id || null;
 
-    const [newGame] = await db
-      .insert(games)
-      .values({ targetWord: targetWord.toLowerCase(), status: "active" })
-      .returning({ id: games.id });
-
+    // 3. Single atomic insert into the merged challenges table
     const [newChallenge] = await db
       .insert(challenges)
-      .values({ gameId: newGame.id, creatorId: secureCreatorId })
+      .values({ 
+        wordForB: wordForB.toUpperCase(), // Store uppercase for consistency
+        creatorId: secureCreatorId,
+        status: "pending" // Explicitly set to pending, waiting for Player B
+      })
       .returning({ id: challenges.id });
 
+    // 4. Return the new UUID link
     return NextResponse.json({ challengeId: newChallenge.id });
 
   } catch (error) {

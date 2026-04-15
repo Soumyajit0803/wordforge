@@ -1,11 +1,13 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
-import { leaderboard, challenges, games, users } from "@/app/db/schema";
-import { eq, inArray, asc } from "drizzle-orm";
-import { PackageOpen, Trophy } from "lucide-react";
+// UPDATE: Import matchResults instead of leaderboard, and remove games
+import { matchResults, challenges, users } from "@/app/db/schema";
+// UPDATE: Import desc for sorting by highest efficiency
+import { eq, inArray, desc } from "drizzle-orm";
+import { PackageOpen } from "lucide-react";
 import styles from "./leaderboard.module.css";
-import LeaderboardClient from "./LeaderboardClient"; // We will create this next!
+import LeaderboardClient from "./LeaderboardClient"; 
 import { Suspense } from "react";
 
 export async function generateMetadata() {
@@ -32,11 +34,11 @@ export default async function LeaderboardPage() {
 
   const userId = session.user.id;
 
-  // 1. Find all challenges the user has played
+  // 1. Find all challenges the user has played using the new matchResults table
   const userAttempts = await db
-    .select({ challengeId: leaderboard.challengeId })
-    .from(leaderboard)
-    .where(eq(leaderboard.playerId, userId));
+    .select({ challengeId: matchResults.challengeId })
+    .from(matchResults)
+    .where(eq(matchResults.playerId, userId));
 
   const playedChallengeIds = [
     ...new Set(userAttempts.map((a) => a.challengeId)),
@@ -56,29 +58,34 @@ export default async function LeaderboardPage() {
     );
   }
 
-  // 2. Fetch the leaderboards AND the Creator's Name
+  // 2. Fetch the match results, the Challenge data, and the Creator's Name
   const rawLeaderboards = await db
     .select({
-      challengeId: leaderboard.challengeId,
-      playerName: leaderboard.playerName,
-      playerId: leaderboard.playerId,
-      guessesUsed: leaderboard.guessesUsed,
-      targetWord: games.targetWord,
-      challengerName: users.name, // Join with users table to get the creator's name
+      challengeId: matchResults.challengeId,
+      playerName: matchResults.playerName,
+      playerId: matchResults.playerId,
+      guessesUsed: matchResults.guessesUsed,
+      efficiencyScore: matchResults.efficiencyScore, // Fetch the new metric!
+      targetWord: challenges.wordForB, // Use wordForB from the merged challenges table
+      challengerName: users.name, 
     })
-    .from(leaderboard)
-    .innerJoin(challenges, eq(leaderboard.challengeId, challenges.id))
-    .innerJoin(games, eq(challenges.gameId, games.id))
-    .innerJoin(users, eq(challenges.creatorId, users.id))
-    .where(inArray(leaderboard.challengeId, playedChallengeIds))
-    .orderBy(asc(leaderboard.guessesUsed));
+    .from(matchResults)
+    .innerJoin(challenges, eq(matchResults.challengeId, challenges.id))
+    // Use leftJoin for users just in case the creator was a Guest and has no user row
+    .leftJoin(users, eq(challenges.creatorId, users.id)) 
+    .where(inArray(matchResults.challengeId, playedChallengeIds))
+    // Sort by the smartest player first!
+    .orderBy(desc(matchResults.efficiencyScore)); 
 
   // 3. Group the data for the Client Component
+  // Update the type to include efficiencyScore
   type ScoreEntry = {
     playerName: string;
-    playerId: string;
+    playerId: string | null;
     guessesUsed: number;
+    efficiencyScore: number;
   };
+  
   type GroupedData = Record<
     string,
     { word: string; challenger: string; scores: ScoreEntry[] }
@@ -90,16 +97,15 @@ export default async function LeaderboardPage() {
     if (!groupedData[entry.challengeId]) {
       groupedData[entry.challengeId] = {
         word: entry.targetWord,
-        // Provide a fallback if the left join returns null
-        challenger: entry.challengerName,
+        challenger: entry.challengerName || "Guest Challenger",
         scores: [],
       };
     }
     groupedData[entry.challengeId].scores.push({
-      // Provide fallbacks for the player data as well
       playerName: entry.playerName,
       playerId: entry.playerId,
       guessesUsed: entry.guessesUsed,
+      efficiencyScore: entry.efficiencyScore,
     });
   });
 

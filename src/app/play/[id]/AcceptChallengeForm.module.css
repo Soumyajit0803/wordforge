@@ -1,0 +1,113 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 1rem;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 3rem 2rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #eaeaea;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.icon {
+  color: #1a1a1b; /* Wordle dark gray */
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1b;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #787c7e;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.wordInput {
+  width: 100%;
+  padding: 1rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  border: 2px solid #d3d6da;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.wordInput:focus {
+  border-color: #538d4e; /* Wordle Green */
+}
+
+.wordInput:disabled {
+  background-color: #f3f3f3;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  color: #e23636;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.submitButton {
+  background-color: #1a1a1b;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #333;
+}
+
+.submitButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submitButton:disabled {
+  background-color: #d3d6da;
+  cursor: not-allowed;
+}
+
+.guestNotice {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #878a8c;
+}

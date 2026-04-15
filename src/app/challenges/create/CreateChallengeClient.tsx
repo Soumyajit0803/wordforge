@@ -3,20 +3,18 @@
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import styles from "./create.module.css";
-import { Copy, Check } from "lucide-react"; // Import Check
+import { Copy, Check } from "lucide-react"; 
 import AppButton from "@/components/Buttons/AppButton";
 import { GoogleIcon } from "@/app/page";
 
 export default function CreateChallengeClient() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   const [word, setWord] = useState("");
   const [wordSet, setWordSet] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [shareLink, setShareLink] = useState("");
   const [error, setError] = useState("");
-
-  // NEW: State to track if the link was copied
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -42,10 +40,11 @@ export default function CreateChallengeClient() {
     setLoading(true);
 
     try {
+      // UPDATE: Changed endpoint if needed, and body matches new schema
       const response = await fetch("/api/challenge/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetWord: cleanWord }),
+        body: JSON.stringify({ wordForB: cleanWord }), // <-- Using wordForB
       });
 
       if (!response.ok) {
@@ -65,7 +64,6 @@ export default function CreateChallengeClient() {
     }
   };
 
-  // NEW: Handle the copy action and reset after 2 seconds
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(shareLink);
@@ -84,22 +82,10 @@ export default function CreateChallengeClient() {
     );
   }
 
-  if (status === "unauthenticated") {
-    return (
-      <main className={styles.container}>
-        <div className={styles.header}>
-          <h1>Members Only</h1>
-          <p>You must be logged in to create a challenge.</p>
-        </div>
-        <AppButton fixWidth onClick={() => signIn("google", { callbackUrl: window.location.href })} text="Log in with Google" startIcon={<GoogleIcon />} />
-      </main>
-    );
-  }
-
   return (
     <main className={styles.container}>
-      <h1>Create a Challenge</h1>
-      <p>Pick a 5-letter word to stump your friends.</p>
+      <h1>Set the Trap</h1>
+      <p>Pick a 5-letter word for your opponent to guess.</p>
 
       <input
         type="text"
@@ -120,11 +106,11 @@ export default function CreateChallengeClient() {
           disabled={loading || word.length !== 5 || wordSet.size === 0}
           className={styles.createBtn}
         >
-          {loading ? "Generating..." : "Generate Link"}
+          {loading ? "Generating..." : "Generate Duel Link"}
         </button>
       ) : (
         <div className={styles.shareBox}>
-          <p>Challenge Ready! Share this link:</p>
+          <p>Duel Ready! Send this link to your opponent:</p>
           <div className={styles.linkWrapper}>
             <input type="text" readOnly value={shareLink} />
             <button

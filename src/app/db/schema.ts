@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, primaryKey, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, primaryKey, uuid, pgEnum, jsonb, doublePrecision, boolean, index } from 'drizzle-orm/pg-core';
 import type { AdapterAccount } from "next-auth/adapters";
 
 // --- NextAuth Tables ---
@@ -42,33 +42,75 @@ export const verificationTokens = pgTable('verificationToken', {
   compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
 }));
 
-// --- Game Tables (Keep this from before) ---
-export const games = pgTable('games', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  targetWord: text('target_word').notNull(),
-  status: text('status').default('active').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+export const statusEnum = pgEnum('challenge_status', ['pending', 'active', 'completed', 'expired']);
+
+
+export const userStats = pgTable('user_stats', {
+  // 1-to-1 relationship with NextAuth users
+  userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  playerName: text('player_name').notNull(), // Cached here to avoid joining `users` for basic leaderboard UI
+  
+  totalWins: integer('total_wins').default(0).notNull(),
+  totalGamesPlayed: integer('total_games_played').default(0).notNull(),
+  
+  highestEfficiencyScore: doublePrecision('highest_efficiency_score').default(0).notNull(),
+  averageEfficiencyScore: doublePrecision('average_efficiency_score').default(0).notNull(),
+  
+  currentWinStreak: integer('current_win_streak').default(0).notNull(),
+  
+  lastUpdated: timestamp('last_updated').defaultNow().notNull(),
+}, (table) => {
+  return {
+    // INDUSTRY GRADE: Add indexes to columns you sort by for the leaderboard.
+    // This makes generating the top 100 list instantaneous, even with 100,000 users.
+    efficiencyIdx: index('efficiency_idx').on(table.averageEfficiencyScore),
+    winsIdx: index('wins_idx').on(table.totalWins),
+  };
 });
 
-// Challenges: Links a Target Word to a Creator
+export const challengeStatusEnum = pgEnum('challenge_status', ['pending', 'active', 'completed', 'expired']);
+
 export const challenges = pgTable('challenges', {
-  id: uuid('id').primaryKey().defaultRandom(), // Use UUID for the shareable URL
-  gameId: integer('game_id').references(() => games.id).notNull(),
-  creatorId: text('creator_id').references(() => users.id).notNull(),
+  id: uuid('id').primaryKey().defaultRandom(), // Secure URL ID
+  
+  // Player A (Creator)
+  creatorId: text('creator_id'), // Nullable for guests
+  wordForB: text('word_for_b').notNull(),
+  playerA_Guesses: jsonb('player_a_guesses').default([]).notNull(),
+  playerA_Efficiency: doublePrecision('player_a_efficiency').default(0),
+
+  // Player B (Joiner)
+  opponentId: text('opponent_id'), // Nullable for guests
+  wordForA: text('word_for_a'), // Set when User B locks the challenge
+  playerB_Guesses: jsonb('player_b_guesses').default([]).notNull(),
+  playerB_Efficiency: doublePrecision('player_b_efficiency').default(0),
+
+  // State
+  status: challengeStatusEnum('status').default('pending').notNull(),
+  winnerId: text('winner_id'), 
+  
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
 });
 
-// Leaderboard: Stores the results for a specific challenge
-export const leaderboard = pgTable('leaderboard', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+export const matchResults = pgTable('match_results', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(), // Internal ID, high performance
   challengeId: uuid('challenge_id').references(() => challenges.id).notNull(),
   
-  // Player Data: Can be a User ID (if logged in) or a Guest Name
-  playerId: text('player_id').references(() => users.id).notNull(), 
-  playerName: text('player_name').notNull(), // "Guest" or the User's Display Name
+  // Player Details for this specific match
+  playerId: text('player_id').references(() => users.id), // Nullable for guests
+  playerName: text('player_name').notNull(), 
   
-  // The Score
-  guessesUsed: integer('guesses_used').notNull(), // 1 through 6
-  timeSeconds: integer('time_seconds').notNull(), // For tie-breaking/uniqueness
+  // The Outcome
+  isWinner: boolean('is_winner').notNull().default(false), 
+  efficiencyScore: doublePrecision('efficiency_score').notNull(), 
+  guessesUsed: integer('guesses_used').notNull(), 
+  timeSeconds: integer('time_seconds'), // Optional
+  
   createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => {
+  return {
+    // Index to quickly fetch a user's match history for their profile page
+    playerHistoryIdx: index('player_history_idx').on(table.playerId),
+  };
 });

@@ -1,0 +1,154 @@
+/* app/challenges/history.module.css */
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header h1, .header h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1b; /* Dark text */
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: #787c7e;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tableContainer {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #d3d6da;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  overflow-x: auto; /* Ensures it scrolls horizontally on mobile */
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #d3d6da;
+}
+
+.table th {
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #787c7e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #eaeaea;
+  vertical-align: middle;
+  color: #1a1a1b;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #fcfcfc;
+}
+
+/* Specific Column Styling */
+.dateCol {
+  font-size: 0.95rem;
+  color: #787c7e;
+  white-space: nowrap;
+}
+
+.wordCol {
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.iqCol {
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+/* Outcome Badges (Pills) */
+.outcomeCol {
+  width: 100px;
+}
+
+.pillWon, .pillLost, .pillDraw {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 70px;
+}
+
+.pillWon {
+  background-color: #e6f4ea;
+  color: #1e8e3e; /* Success Green */
+  border: 1px solid #ceead6;
+}
+
+.pillLost {
+  background-color: #fce8e6;
+  color: #d93025; /* Danger Red */
+  border: 1px solid #fad2cf;
+}
+
+.pillDraw {
+  background-color: #f1f3f4;
+  color: #5f6368; /* Neutral Gray */
+  border: 1px solid #e8eaed;
+}
+
+/* Replay Link */
+.replayLink {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a73e8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.replayLink:hover {
+  color: #1557b0;
+  text-decoration: underline;
+}

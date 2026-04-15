@@ -29,12 +29,14 @@ interface PlayAreaProps {
   targetWord: string;
   challengerName: string;
   challengeId: string;
+  isCreator: boolean; // Add this!
 }
 
 export default function PlayArea({
   targetWord,
   challengerName,
   challengeId,
+  isCreator,
 }: PlayAreaProps) {
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
@@ -82,15 +84,46 @@ export default function PlayArea({
   }, [challengeId]);
 
   // 2. SAVE TO LOCAL STORAGE ON GAME OVER
-  const handleGameOver = (status: "won" | "lost") => {
+// ... inside PlayArea component
+
+  const handleGameOver = async (status: "won" | "lost", finalGuesses: string[]) => {
     setGameStatus(status);
+    
+    // 1. Filter out the empty strings from the guesses array
+    const playedGuesses = finalGuesses.filter(g => g !== "");
+
+    try {
+      // 2. Send the data to your Next.js API route to update the database
+      const response = await fetch('/api/challenge/submit-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          challengeId,
+          isCreator, // Tells the backend to update playerA_Guesses or playerB_Guesses
+          guesses: playedGuesses,
+          targetWord,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to save match result to database");
+      }
+      
+      // Optional: Get the calculated efficiency score back to show in the modal!
+      // const { efficiencyScore } = await response.json();
+
+    } catch (error) {
+      console.error("Error submitting score:", error);
+    }
+
+    // 3. Open the Modal
     setIsModalOpen(true);
   };
 
   const evaluateGuess = (guess: string) => {
     const result: Evaluation[] = Array(WORD_LENGTH).fill(Evaluation.ABSENT);
-    const targetLetters = targetWord.split("");
-    const guessLetters = guess.split("");
+    const targetLetters = targetWord.toUpperCase().split("");
+    const guessLetters = guess.toUpperCase().split("");
 
     // Pass 1: Find exact matches (Green / Correct)
     guessLetters.forEach((letter, i) => {
@@ -116,8 +149,8 @@ export default function PlayArea({
       if (gameStatus !== "playing") return;
 
       // 1. Get current guess state
-      const currentGuess = guesses[currentGuessIndex];
-
+      const currentGuess = guesses[currentGuessIndex].toUpperCase();
+      console.log("Current Guess Before Key Press:", currentGuess);
       if (key === "backspace") {
         setGuesses((prev) => {
           const next = [...prev];
@@ -167,11 +200,14 @@ export default function PlayArea({
 
           // --- GAME OVER CHECK OR NEXT ROW ---
           const isWin = currentEval.every((s) => s === Evaluation.CORRECT);
-
+          // Construct the final array for this turn to send to the server
+          const newGuesses = [...guesses];
+          newGuesses[currentGuessIndex] = currentGuess;
+          
           if (isWin) {
-            handleGameOver("won");
+            handleGameOver("won", newGuesses);
           } else if (currentGuessIndex === MAX_GUESSES - 1) {
-            handleGameOver("lost");
+            handleGameOver("lost", newGuesses);
           } else {
             setCurrentGuessIndex((prev) => prev + 1);
           }
