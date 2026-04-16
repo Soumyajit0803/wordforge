@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import styles from "./account.module.css"; // We'll create this next
-
+import AppButton from "@/components/Buttons/AppButton";
+import { GoogleIcon } from "../page";
 
 export default function AccountClient() {
   // Grab the "update" function from NextAuth to refresh the session locally
@@ -30,12 +31,29 @@ export default function AccountClient() {
   }, [session]);
 
   if (status === "loading") {
-    return <main className={styles.container}><p>Loading...</p></main>;
+    return (
+      <main className={styles.container}>
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
-    return null;
+    return (
+      <main className={styles.container}>
+        <div className={styles.header}>
+          <h2>Members Only</h2>
+          <p>Please log in to proceed further.</p>
+          <AppButton
+            onClick={() =>
+              signIn("google", { callbackUrl: window.location.href })
+            }
+            text="sign in with google"
+            startIcon={<GoogleIcon />}
+          />
+        </div>
+      </main>
+    );
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -74,14 +92,13 @@ export default function AccountClient() {
       </header>
 
       <form onSubmit={handleSave} className={styles.formCard}>
-        
         {/* Profile Picture Preview */}
         <div className={styles.avatarSection}>
           {imageUrl && !imageError ? (
-            <img 
-              src={imageUrl} 
-              alt="Profile Preview" 
-              className={styles.avatarPreview} 
+            <img
+              src={imageUrl}
+              alt="Profile Preview"
+              className={styles.avatarPreview}
               onError={() => setImageError(true)}
             />
           ) : (
@@ -119,16 +136,20 @@ export default function AccountClient() {
           />
         </div>
 
-        <button 
-          type="submit" 
-          disabled={isSaving || !name.trim()} 
+        <button
+          type="submit"
+          disabled={isSaving || !name.trim()}
           className={styles.primaryBtn}
         >
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
 
         {message && (
-          <p className={message.includes("success") ? styles.successMsg : styles.errorMsg}>
+          <p
+            className={
+              message.includes("success") ? styles.successMsg : styles.errorMsg
+            }
+          >
             {message}
           </p>
         )}

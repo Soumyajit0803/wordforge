@@ -2,17 +2,15 @@
 
 import styles from "./history.module.css";
 import Link from "next/link";
+import { Eye } from "lucide-react";
 
-type DuelRecord = {
+type SimpleDuel = {
   id: string;
   date: string;
-  myWordToGuess: string;
-  myIQ: number;
-  opponentIQ: number;
-  outcome: string;
+  opponent: string;
 };
 
-export default function DuelHistoryClient({ history }: { history: DuelRecord[] }) {
+export default function DuelHistoryClient({ duels }: { duels: SimpleDuel[] }) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.tableContainer}>
@@ -20,39 +18,23 @@ export default function DuelHistoryClient({ history }: { history: DuelRecord[] }
           <thead>
             <tr>
               <th>Date</th>
-              <th>Target Word</th>
-              <th>My IQ</th>
-              <th>Opponent IQ</th>
-              <th>Result</th>
+              <th>Opponent</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {history.map((duel) => (
+            {duels.map((duel) => (
               <tr key={duel.id}>
                 <td className={styles.dateCol}>{duel.date}</td>
-                <td className={styles.wordCol}>{duel.myWordToGuess.toUpperCase()}</td>
-                <td className={styles.iqCol}>
-                  <strong>{duel.myIQ.toFixed(1)}</strong>
-                </td>
-                <td className={styles.iqCol}>{duel.opponentIQ.toFixed(1)}</td>
-                <td className={styles.outcomeCol}>
-                  <span
-                    className={
-                      duel.outcome === "WON"
-                        ? styles.pillWon
-                        : duel.outcome === "LOST"
-                        ? styles.pillLost
-                        : styles.pillDraw
-                    }
-                  >
-                    {duel.outcome}
+                <td className={styles.nameCol}>
+                  <span className={duel.opponent === "Pending..." ? styles.pendingText : ""}>
+                    {duel.opponent}
                   </span>
                 </td>
                 <td>
-                  {/* Replay link for future GSAP board playback */}
-                  <Link href={`/play/${duel.id}`} className={styles.replayLink}>
-                    View Board
+                  {/* CHANGED FROM /play TO /status */}
+                  <Link href={`/status/${duel.id}`} className={styles.actionBtn}>
+                    <Eye size={16} /> See Status
                   </Link>
                 </td>
               </tr>

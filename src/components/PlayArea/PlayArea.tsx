@@ -12,9 +12,9 @@ const MAX_GUESSES = 6;
 let wordSet: Set<string> = new Set();
 
 const KEYBOARD_ROWS = [
-  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-  ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-  ["enter", "z", "x", "c", "v", "b", "n", "m", "backspace"],
+  ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+  ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+  ["enter", "Z", "X", "C", "V", "B", "N", "M", "backspace"],
 ];
 
 type GameStatus = "playing" | "won" | "lost";
@@ -29,7 +29,8 @@ interface PlayAreaProps {
   targetWord: string;
   challengerName: string;
   challengeId: string;
-  isCreator: boolean; // Add this!
+  isCreator: boolean;
+  initialGuesses?: string[];
 }
 
 export default function PlayArea({
@@ -37,12 +38,18 @@ export default function PlayArea({
   challengerName,
   challengeId,
   isCreator,
+  initialGuesses = [],
 }: PlayAreaProps) {
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const [guesses, setGuesses] = useState<string[]>(Array(MAX_GUESSES).fill(""));
+  // 2. Initialize your state with the cloud data!
+  const [guesses, setGuesses] = useState<string[]>(() => {
+    if (initialGuesses.length > 0) return initialGuesses;
+    return Array(MAX_GUESSES).fill("");
+  });
+
   const [evaluations, setEvaluations] = useState<Evaluation[][]>(
     Array(MAX_GUESSES).fill(Array(WORD_LENGTH).fill(Evaluation.NODATA)),
   );
@@ -84,19 +91,22 @@ export default function PlayArea({
   }, [challengeId]);
 
   // 2. SAVE TO LOCAL STORAGE ON GAME OVER
-// ... inside PlayArea component
+  // ... inside PlayArea component
 
-  const handleGameOver = async (status: "won" | "lost", finalGuesses: string[]) => {
+  const handleGameOver = async (
+    status: "won" | "lost",
+    finalGuesses: string[],
+  ) => {
     setGameStatus(status);
-    
+
     // 1. Filter out the empty strings from the guesses array
-    const playedGuesses = finalGuesses.filter(g => g !== "");
+    const playedGuesses = finalGuesses.filter((g) => g !== "");
 
     try {
       // 2. Send the data to your Next.js API route to update the database
-      const response = await fetch('/api/challenge/submit-score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/challenge/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           challengeId,
           isCreator, // Tells the backend to update playerA_Guesses or playerB_Guesses
@@ -108,10 +118,9 @@ export default function PlayArea({
       if (!response.ok) {
         console.error("Failed to save match result to database");
       }
-      
+
       // Optional: Get the calculated efficiency score back to show in the modal!
       // const { efficiencyScore } = await response.json();
-
     } catch (error) {
       console.error("Error submitting score:", error);
     }
@@ -203,13 +212,22 @@ export default function PlayArea({
           // Construct the final array for this turn to send to the server
           const newGuesses = [...guesses];
           newGuesses[currentGuessIndex] = currentGuess;
-          
+
           if (isWin) {
             handleGameOver("won", newGuesses);
           } else if (currentGuessIndex === MAX_GUESSES - 1) {
             handleGameOver("lost", newGuesses);
           } else {
             setCurrentGuessIndex((prev) => prev + 1);
+            fetch("/api/challenge/save-progress", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                challengeId,
+                isCreator,
+                guesses: newGuesses,
+              }),
+            }).catch((err) => console.error("Cloud sync failed", err));
           }
         }
       } else if (currentGuess.length < WORD_LENGTH && /^[a-z]$/i.test(key)) {

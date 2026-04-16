@@ -1,7 +1,8 @@
-/* app/challenges/history.module.css */
-
+/* =========================================
+   WRAPPER & TYPOGRAPHY
+   ========================================= */
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 3rem 1rem;
   display: flex;
@@ -19,10 +20,10 @@
   gap: 0.5rem;
 }
 
-.header h1, .header h2 {
+.header h1 {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #1a1a1b; /* Dark text */
+  color: #1a1a1b;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -37,15 +38,32 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 3.5rem; /* Space between Active and Completed sections */
 }
 
+.section {
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1b;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f1f3f4;
+  letter-spacing: -0.02em;
+}
+
+/* =========================================
+   TABLE STRUCTURE & STYLING
+   ========================================= */
 .tableContainer {
   background: white;
   border-radius: 12px;
   border: 1px solid #d3d6da;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  overflow-x: auto; /* Ensures it scrolls horizontally on mobile */
+  overflow-x: auto; /* Handles horizontal scrolling on mobile */
   width: 100%;
 }
 
@@ -61,7 +79,7 @@
 }
 
 .table th {
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 1.5rem;
   font-size: 0.85rem;
   font-weight: 700;
   color: #787c7e;
@@ -85,16 +103,30 @@
   background-color: #fcfcfc;
 }
 
-/* Specific Column Styling */
+/* Highlight row for "My Turn" */
+.highlightRow {
+  background-color: #fbfdff !important;
+  border-left: 4px solid #1a73e8;
+}
+
+/* =========================================
+   COLUMN SPECIFICS
+   ========================================= */
 .dateCol {
   font-size: 0.95rem;
   color: #787c7e;
   white-space: nowrap;
 }
 
+.nameCol {
+  font-weight: 600;
+  color: #1a1a1b;
+}
+
 .wordCol {
   font-weight: 800;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .iqCol {
@@ -102,12 +134,19 @@
   font-size: 1.1rem;
 }
 
-/* Outcome Badges (Pills) */
 .outcomeCol {
-  width: 100px;
+  width: 120px;
 }
 
-.pillWon, .pillLost, .pillDraw {
+.pendingText {
+  color: #a8aab0;
+  font-weight: 400;
+}
+
+/* =========================================
+   STATUS PILLS & BADGES
+   ========================================= */
+.pillActive, .pillPending, .pillWon, .pillLost, .pillDraw {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -117,9 +156,23 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  min-width: 70px;
+  min-width: 80px;
 }
 
+/* Active Section Pills */
+.pillActive {
+  background-color: #e8f0fe;
+  color: #1a73e8; /* Google Blue */
+  border: 1px solid #d2e3fc;
+}
+
+.pillPending {
+  background-color: #f8f9fa;
+  color: #787c7e;
+  border: 1px dashed #d3d6da;
+}
+
+/* Completed Section Pills */
 .pillWon {
   background-color: #e6f4ea;
   color: #1e8e3e; /* Success Green */
@@ -138,7 +191,52 @@
   border: 1px solid #e8eaed;
 }
 
-/* Replay Link */
+/* =========================================
+   ACTION BUTTONS & LINKS
+   ========================================= */
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #1a1a1b;
+  border: 1px solid #d3d6da;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: #f8f9fa;
+  border-color: #787c7e;
+}
+
+.primaryBtn {
+  background: #1a1a1b;
+  color: white;
+  border-color: #1a1a1b;
+}
+
+.primaryBtn:hover {
+  background: #333;
+  border-color: #333;
+  color: white;
+}
+
+.waitText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #787c7e;
+  font-weight: 500;
+}
+
 .replayLink {
   font-size: 0.9rem;
   font-weight: 600;

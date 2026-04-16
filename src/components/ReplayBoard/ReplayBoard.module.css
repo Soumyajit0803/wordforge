@@ -1,0 +1,127 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h2 {
+  font-size: 2.2rem;
+  color: #1a1a1b;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #787c7e;
+}
+
+.boardsWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.vsBadge {
+  background: #f1f3f4;
+  color: #787c7e;
+  padding: 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.boardCard {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 2px solid #eaeaea;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  flex: 1;
+  max-width: 400px;
+}
+
+.winnerCard {
+  border-color: #fbbc04; /* Gold border for the winner */
+  box-shadow: 0 8px 30px rgba(251, 188, 4, 0.15);
+}
+
+.boardHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.boardHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #1a1a1b;
+}
+
+.playerName {
+  color: #787c7e;
+  font-size: 0.9rem;
+  margin: 0.2rem 0 1rem 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  background: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1a1a1b;
+}
+
+/* The Grid */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.empty {
+  background: white;
+  border: 2px solid #d3d6da;
+}
+
+.correct { background: #538d4e; border: 2px solid #538d4e; }
+.present { background: #b59f3b; border: 2px solid #b59f3b; }
+.absent { background: #787c7e; border: 2px solid #787c7e; }
+
+/* Responsive Mobile Stacking */
+@media (max-width: 800px) {
+  .boardsWrapper {
+    flex-direction: column;
+  }
+}

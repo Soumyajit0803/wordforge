@@ -50,7 +50,10 @@ export default function Home() {
       <div className={styles.wrapper}>
         {!session?.user && (
           <p>
-            Love wordle? Try ForgeWord, a competitive twist on the classic word game. Challenge friends, climb the leaderboards, and forge your path to word mastery. Play now and see if you have what it takes to be the ultimate ForgeWord champion!
+            Love wordle? Try ForgeWord, a competitive twist on the classic word
+            game. Challenge friends, climb the leaderboards, and forge your path
+            to word mastery. Play now and see if you have what it takes to be
+            the ultimate ForgeWord champion!
           </p>
         )}
 
@@ -69,12 +72,25 @@ export default function Home() {
             <>
               <div className={styles.welcomeBox}>
                 <p className={styles.promptText}>Welcome back,</p>
-                {session.user.image && <img src={session.user.image} alt="Profile" className={styles.profilePic} referrerPolicy="no-referrer" />}
+                {session.user.image && (
+                  <img
+                    src={session.user.image}
+                    alt="Profile"
+                    className={styles.profilePic}
+                    referrerPolicy="no-referrer"
+                  />
+                )}
                 <p className={styles.welcomeName}>{session.user.name}</p>
               </div>
 
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <AppButton variant="primary" routeURL="/challenges/create" text="Create challenge" />
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem",
+                }}
+              >
                 <AppButton
                   onClick={() => signOut({ callbackUrl: "/" })}
                   text="Logout"
@@ -83,6 +99,11 @@ export default function Home() {
               </div>
             </>
           )}
+          <AppButton
+            variant="primary"
+            routeURL="/challenges/create"
+            text="Create challenge"
+          />
         </div>
       </div>
     </main>

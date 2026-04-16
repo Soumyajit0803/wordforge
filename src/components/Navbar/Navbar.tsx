@@ -33,7 +33,6 @@ const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const { data: session } = useSession();
-  console.log(session);
 
   useEffect(() => {
     const pathKey =
