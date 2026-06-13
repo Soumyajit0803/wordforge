@@ -35,10 +35,28 @@ export default async function StatusPage({ params }: { params: { id: string } })
   
   const isCreator = currentUserId === challenge.creatorId;
   const myGuesses = isCreator ? challenge.playerA_Guesses : challenge.playerB_Guesses;
-  const iHaveFinishedPlaying = Array.isArray(myGuesses) && myGuesses.length > 0;
+  const myEfficiency = (isCreator ? challenge.playerA_Efficiency : challenge.playerB_Efficiency) || 0;
+  const opponentEfficiency = (isCreator ? challenge.playerB_Efficiency : challenge.playerA_Efficiency) || 0;
+  const opponentGuesses = isCreator ? challenge.playerB_Guesses : challenge.playerA_Guesses;
+
+  const meFinishedPlaying = myGuesses && ((myGuesses.length===6 && myGuesses[5].length===5) || myGuesses.includes(isCreator ? challenge.wordForA : challenge.wordForB));
+  const opponentFinishedPlaying = opponentGuesses && ((opponentGuesses.length===6 && opponentGuesses[5].length===5) || opponentGuesses.includes(isCreator ? challenge.wordForB : challenge.wordForA));
+
+  const bothFinished = meFinishedPlaying && opponentFinishedPlaying;
+  console.log(challenge)
+
 
   return (
-    <div style={{ paddingBottom: "4rem" }}>
+    <div style={{ padding: "5rem 1rem",
+      display: "flex", flexDirection: "column", alignItems: "center"
+     }}>
+      <div style={{
+        background: !bothFinished?"var(--green)":"var(--blue)",
+        padding: "1rem",
+        width: "fit-content",
+        color: "#fff",
+        borderRadius: "5rem",
+      }}>{! bothFinished ? 'Active challenge!' : 'Challenge completed!'}</div>
       <ReplayBoard 
         duelData={{
           ...challenge,
@@ -49,8 +67,10 @@ export default async function StatusPage({ params }: { params: { id: string } })
       />
 
       {/* If the game is active but they HAVEN'T played yet, give them a button to go to the PlayArea */}
-      {challenge.status === "active" && !iHaveFinishedPlaying && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
+      {!meFinishedPlaying && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", marginTop: "2rem", gap: "1rem" }}>
+            <p style={{textAlign: "center", width: "70vw"}}>Seems like you have not yet finished your challenge yet. Complete your challenge now!</p>
+
           <Link 
             href={`/play/${id}`} 
             style={{
@@ -62,6 +82,21 @@ export default async function StatusPage({ params }: { params: { id: string } })
           </Link>
         </div>
       )}
+      {
+        bothFinished && (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", marginTop: "2rem", gap: "1rem" }}>
+            <p style={{textAlign: "center", width: "70vw"}}>
+              {myEfficiency === opponentEfficiency
+                ? "It's a tie! Both you and your opponent had the same efficiency score. Great minds think alike!"
+                : myEfficiency > opponentEfficiency
+                  ? "Wow! You won! You had a higher efficiency score than your opponent."
+                  : "Dang! You lost! Your opponent had a higher efficiency score than you."
+              }
+            </p>
+          </div>
+
+        )
+      }
     </div>
   );
 }

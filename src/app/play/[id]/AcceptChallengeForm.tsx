@@ -117,7 +117,7 @@ export default function AcceptChallengeForm({
 
         {!currentUserId && (
           <p className={styles.guestNotice}>
-            You are playing as a Guest. Your stats won't be saved on the leaderboard.
+            You are playing as a Guest. Make sure to sign up/log in later to keep track of your duels.
           </p>
         )}
       </div>

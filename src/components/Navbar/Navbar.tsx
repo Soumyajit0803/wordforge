@@ -4,8 +4,10 @@ import {
   ChartBar,
   CircleUser,
   Compass,
+  DoorClosed,
   FileQuestion,
   HelpCircle,
+  LogOutIcon,
   LucideChartBar,
   Menu,
   ScanFaceIcon,
@@ -17,7 +19,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import HelpModal from "@/components/Popup/HelpModal";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const navItems: { [key: string]: number } = {
   home: 0,
@@ -98,6 +100,9 @@ const Navbar = () => {
             <CircleUser size={24} />
           )}
         </Link>
+        <div className={styles.iconButton} onClick={() => signOut({ callbackUrl: "/" })}>
+          <LogOutIcon size={25} />
+        </div>
       </div>
       <div className={styles.forMobile}>
         <div className={styles.iconButton} onClick={() => setIsHelpOpen(true)}>

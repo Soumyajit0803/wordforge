@@ -50,10 +50,8 @@ export default function Home() {
       <div className={styles.wrapper}>
         {!session?.user && (
           <p>
-            Love wordle? Try ForgeWord, a competitive twist on the classic word
-            game. Challenge friends, climb the leaderboards, and forge your path
-            to word mastery. Play now and see if you have what it takes to be
-            the ultimate ForgeWord champion!
+            Love wordle? Try ForgeWord, a competitive twist on the classic wordle
+            game. Challenge friends to guess your secret word in 6 attempts, while you try to guess theirs. Sign up to save progress and climb the global leaderboard!
           </p>
         )}
 
@@ -82,28 +80,23 @@ export default function Home() {
                 )}
                 <p className={styles.welcomeName}>{session.user.name}</p>
               </div>
-
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                }}
-              >
-                <AppButton
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  text="Logout"
-                  variant="danger"
-                />
-              </div>
+              <AppButton
+                variant="primary"
+                routeURL="/challenges/create"
+                text="Create challenge"
+              />
+              <AppButton
+                variant="primary"
+                routeURL="/challenges"
+                text="View my challenges"
+              />
+              <AppButton
+                variant="primary"
+                routeURL="/leaderboard"
+                text="Leaderboard"
+              />
             </>
           )}
-          <AppButton
-            variant="primary"
-            routeURL="/challenges/create"
-            text="Create challenge"
-          />
         </div>
       </div>
     </main>

@@ -1,9 +1,12 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from "next/server";
 import { db } from "@/app/db/index";
 import { users } from "@/app/db/schema";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -33,6 +36,7 @@ export async function POST(request: Request) {
       .where(eq(users.id, session.user.id));
 
     // 5. Send back a success signal!
+    revalidatePath("/leaderboard");
     return NextResponse.json({ success: true, name, image });
     
   } catch (error) {

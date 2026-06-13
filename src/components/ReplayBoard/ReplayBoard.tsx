@@ -1,5 +1,6 @@
 "use client";
 
+import { toArray } from "drizzle-orm/mysql-core";
 import styles from "./ReplayBoard.module.css";
 import { Swords } from "lucide-react";
 
@@ -30,9 +31,9 @@ function evaluateStaticGuess(guess: string, targetWord: string) {
 
 // A static, non-interactive 5x6 grid
 function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any) {
-  const safeGuesses = Array.isArray(guesses) ? guesses : [];
-  const emptyRows = Math.max(0, 6 - safeGuesses.length);
-  console.log(guesses)
+  var safeGuesses: string[] = (guesses.length===6 || guesses.includes(targetWord)) ? guesses : [ ...Array(6).fill(" ")];
+  safeGuesses = safeGuesses.concat([...Array(6 - safeGuesses.length).fill(" ")]);
+  const revealWord = guesses?.includes(targetWord) || (guesses && guesses[5]?.length === 5) || title.includes("Opponent");
 
   return (
     <div className={`${styles.boardCard} ${isWinner ? styles.winnerCard : ""}`}>
@@ -40,7 +41,7 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
         <h3>{title}</h3>
         <p className={styles.playerName}>{playerName}</p>
         <div className={styles.stats}>
-          <span>Word: <strong>{targetWord.toUpperCase()}</strong></span>
+          {revealWord && <span>Word: <strong>{targetWord?.toUpperCase()}</strong></span>}
           <span>IQ: <strong>{iq ? iq.toFixed(1) : 0}</strong></span>
         </div>
       </div>
@@ -48,11 +49,12 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
       <div className={styles.grid}>
         {/* Render Played Guesses */}
         {safeGuesses.map((guess, rowIndex) => {
-          const evaluations = evaluateStaticGuess(guess, targetWord);
+          const guessModifier = guess + "      ".slice(0, 5 - guess.length); // Pad to 6 chars
+          const evaluations = evaluateStaticGuess(guessModifier, targetWord);
           return (
             <div key={rowIndex} className={styles.row}>
-              {guess.toUpperCase().split("").map((char: string, colIndex: number) => (
-                <div key={colIndex} className={`${styles.cell} ${styles[evaluations[colIndex]]}`}>
+              {guessModifier.toUpperCase().split("").map((char: string, colIndex: number) => (
+                <div key={colIndex} className={`${char===' ' && styles.empty} ${styles.cell} ${char!==' ' && styles[evaluations[colIndex]]}`}>
                   {char}
                 </div>
               ))}
@@ -61,13 +63,13 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
         })}
 
         {/* Render Empty Rows */}
-        {Array.from({ length: emptyRows }).map((_, rowIndex) => (
+        {/* {Array.from({ length: emptyRows }).map((_, rowIndex) => (
           <div key={`empty-${rowIndex}`} className={styles.row}>
             {Array.from({ length: 5 }).map((_, colIndex) => (
               <div key={`empty-cell-${colIndex}`} className={`${styles.cell} ${styles.empty}`}></div>
             ))}
           </div>
-        ))}
+        ))} */}
       </div>
     </div>
   );
@@ -76,10 +78,10 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
 // The Main Export
 export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
-
   // Determine who won for highlighting
-  const creatorWon = duelData.winnerId === duelData.creatorId;
-  const opponentWon = duelData.winnerId === duelData.opponentId;
+  const creatorWon = duelData.winnerId && duelData.winnerId === duelData.creatorId;
+  const opponentWon = duelData.winnerId && duelData.winnerId === duelData.opponentId;
+  console.log(duelData);
 
   return (
     <div className={styles.container}>
@@ -91,18 +93,6 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
       <div className={styles.boardsWrapper}>
 
         <MiniBoard
-          title={!isCreator ? "Your Board" : "Opponent's Board"}
-          playerName={duelData.opponentName || "Guest Opponent"}
-          targetWord={duelData.wordForB} // Opponent guesses wordForB
-          guesses={duelData.playerB_Guesses}
-          iq={duelData.playerB_Efficiency}
-          isWinner={opponentWon}
-        />
-        <div className={styles.vsBadge}>
-          <Swords size={32} />
-        </div>
-
-        <MiniBoard
           title={isCreator ? "Your Board" : "Opponent's Board"}
           playerName={duelData.creatorName || "Guest Challenger"}
           targetWord={duelData.wordForA} // Creator guesses wordForA
@@ -110,6 +100,20 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           iq={duelData.playerA_Efficiency}
           isWinner={creatorWon}
         />
+
+        <div className={styles.vsBadge}>
+          <Swords size={32} />
+        </div>
+
+        <MiniBoard
+          title={!isCreator ? "Your Board" : "Opponent's Board"}
+          playerName={duelData.opponentName || "Guest Opponent"}
+          targetWord={duelData.wordForB} // Opponent guesses wordForB
+          guesses={duelData.playerB_Guesses}
+          iq={duelData.playerB_Efficiency}
+          isWinner={opponentWon}
+        />
+
       </div>
     </div>
   );

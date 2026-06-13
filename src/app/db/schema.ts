@@ -81,7 +81,7 @@ export const challenges = pgTable('challenges', {
 
   // Player B (Joiner)
   opponentId: text('opponent_id'), // Nullable for guests
-  wordForA: text('word_for_a'), // Set when User B locks the challenge
+  wordForA: text('word_for_a').notNull().default(""), // Set when User B locks the challenge
   playerB_Guesses: jsonb('player_b_guesses').$type<string[]>().default([]).notNull(),
   playerB_Efficiency: doublePrecision('player_b_efficiency').default(0),
 

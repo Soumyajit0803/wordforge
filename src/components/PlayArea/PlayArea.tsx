@@ -98,6 +98,7 @@ export default function PlayArea({
     finalGuesses: string[],
   ) => {
     setGameStatus(status);
+    setIsModalOpen(true);
 
     // 1. Filter out the empty strings from the guesses array
     const playedGuesses = finalGuesses.filter((g) => g !== "");
@@ -125,8 +126,7 @@ export default function PlayArea({
       console.error("Error submitting score:", error);
     }
 
-    // 3. Open the Modal
-    setIsModalOpen(true);
+
   };
 
   const evaluateGuess = (guess: string) => {

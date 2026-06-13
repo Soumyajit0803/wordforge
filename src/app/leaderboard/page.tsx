@@ -27,6 +27,8 @@ export default async function GlobalLeaderboardPage() {
     .where(gt(userStats.totalGamesPlayed, 0)) // Must have played at least 1 game
     .orderBy(desc(userStats.averageEfficiencyScore))
     .limit(50);
+  
+    console.log("Top Players:", topPlayers); // Debugging line to check the fetched data
 
   return (
     <main className={styles.container}>
