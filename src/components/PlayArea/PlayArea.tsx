@@ -99,6 +99,7 @@ export default function PlayArea({
   ) => {
     setGameStatus(status);
     setIsModalOpen(true);
+    console.log("Game Over with status:", status, "and guesses:", finalGuesses);
 
     // 1. Filter out the empty strings from the guesses array
     const playedGuesses = finalGuesses.filter((g) => g !== "");

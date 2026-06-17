@@ -29,11 +29,21 @@ export default async function ChallengePage({ params }: { params: { id: string }
 
   const { challenge, creatorName } = challengeResult[0];
   const challengerFirstName = creatorName?.split(" ")[0] || "Guest";
+  var opponentFirstName = "Guest";
+  if(challenge.opponentId) {
+    const opponentResult = await db
+      .select({ opponentName: users.name })
+      .from(users)
+      .where(eq(users.id, challenge.opponentId))
+      .limit(1);
+
+    opponentFirstName = opponentResult[0]?.opponentName.split(" ")[0] || "Guest";
+  }
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;
 
   // WORKFLOW A: PENDING
-  if (challenge.status === "pending") {
+  if (challenge.wordForA==="") {
     if (isCreator) {
       return (
         <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
@@ -73,7 +83,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
     <PlayArea
       targetWord={targetWord}
       challengeId={id}
-      challengerName={challengerFirstName}
+      challengerName={!isCreator ? challengerFirstName : opponentFirstName}
       isCreator={isCreator} 
     />
   );

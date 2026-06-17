@@ -81,7 +81,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   // Determine who won for highlighting
   const creatorWon = duelData.winnerId && duelData.winnerId === duelData.creatorId;
   const opponentWon = duelData.winnerId && duelData.winnerId === duelData.opponentId;
-  console.log(duelData);
+  console.log("DuelData", duelData);
 
   return (
     <div className={styles.container}>
