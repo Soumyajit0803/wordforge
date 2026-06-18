@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { cookies } from "next/headers";
 import { db } from "@/app/db/index";
 import { challenges, users } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
@@ -14,7 +15,24 @@ export async function generateMetadata() {
 export default async function ChallengePage({ params }: { params: { id: string } }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id || null;
+  let currentUserId:string = session?.user?.id  || "";
+  let isGuest = false;
+
+  console.log("Current User ID:", currentUserId);
+
+  if (!currentUserId) {
+    const cookieStore = await cookies();
+    const guestProfileStr = cookieStore.get("guest_profile")?.value;
+    if (guestProfileStr) {
+      try {
+        const guestProfile = JSON.parse(guestProfileStr);
+        currentUserId = guestProfile.id;
+        isGuest = true;
+      } catch (err) {
+        console.error("Failed to parse guest profile", err);
+      }
+    }
+  }
 
   const challengeResult = await db
     .select({ challenge: challenges, creatorName: users.name })
@@ -22,13 +40,20 @@ export default async function ChallengePage({ params }: { params: { id: string }
     .leftJoin(users, eq(challenges.creatorId, users.id))
     .where(eq(challenges.id, id))
     .limit(1);
+  console.log("Challenge Result: ", challengeResult);
+  console.log("Challenge ID: ", id);
 
   if (!challengeResult || challengeResult.length === 0) {
     return <div style={{ textAlign: "center", padding: "4rem" }}><h2>Not Found</h2></div>;
   }
 
   const { challenge, creatorName } = challengeResult[0];
-  const challengerFirstName = creatorName?.split(" ")[0] || "Guest";
+  let challengerFirstName;
+  if(!isGuest){
+    challengerFirstName = creatorName?.split(" ")[0] || "Guest";
+  } else {
+    challengerFirstName = challenge.creatorId.split("-").reverse()[0];
+  }
   var opponentFirstName = "Guest";
   if(challenge.opponentId) {
     const opponentResult = await db
@@ -37,7 +62,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
       .where(eq(users.id, challenge.opponentId))
       .limit(1);
 
-    opponentFirstName = opponentResult[0]?.opponentName.split(" ")[0] || "Guest";
+    opponentFirstName = opponentResult[0]?.opponentName.split(" ")[0] || challenge.opponentId.split("-").reverse()[0];
   }
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;
@@ -73,7 +98,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
     redirect(`/status/${id}`);
   }
   
-  if (!isCreator && !isOpponent && currentUserId !== null) {
+  if (!isCreator && !isOpponent) {
      return <div style={{ textAlign: "center", padding: "4rem" }}><h2>Spectator Mode</h2></div>;
   }
 

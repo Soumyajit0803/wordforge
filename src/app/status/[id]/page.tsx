@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import ReplayBoard from "@/components/ReplayBoard/ReplayBoard";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { cookies } from "next/headers";
 
 export default async function StatusPage({
   params,
@@ -14,7 +15,24 @@ export default async function StatusPage({
 }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id || null;
+  let currentUserId = session?.user?.id || null;
+  let isGuest = false;
+
+  // 2. If no active session, check for the guest cookie
+  if (!currentUserId) {
+    const cookieStore = await cookies();
+    const guestProfileStr = cookieStore.get("guest_profile")?.value;
+
+    if (guestProfileStr) {
+      try {
+        const guestProfile = JSON.parse(guestProfileStr);
+        currentUserId = guestProfile.id;
+        isGuest = true;
+      } catch (e) {
+        console.error("Failed to parse guest cookie", e);
+      }
+    }
+  }
 
   const challengeResult = await db
     .select({
@@ -35,22 +53,50 @@ export default async function StatusPage({
   }
 
   const { challenge, creatorName } = challengeResult[0];
-  const challengerFirstName = creatorName?.split(" ")[0] || "Guest";
-
-  let opponent;
-  if (challenge.opponentId) {
-    [opponent] = await db
-      .select({
-        name: users.name,
-      })
-      .from(users)
-      .where(eq(users.id, challenge.opponentId))
-      .limit(1);
+  let challengerFirstName;
+  if (creatorName) {
+    challengerFirstName = creatorName?.split(" ")[0];
   } else {
-    opponent = { name: "Guest Opponent" };
+    challengerFirstName = currentUserId?.split("-").reverse()[0];
   }
 
   const isCreator = currentUserId === challenge.creatorId;
+  let opponent;
+
+  if (isCreator) {
+    if (challenge.opponentId) {
+      [opponent] = await db
+        .select({
+          name: users.name,
+        })
+        .from(users)
+        .where(eq(users.id, challenge.opponentId))
+        .limit(1);
+      if (!opponent) {
+        console.log("Opponent ID in status", challenge.opponentId);
+        opponent = { name: challenge.opponentId.split("-").reverse()[0] };
+      }
+    } else {
+      opponent = { name: "Guest" };
+    }
+  } else {
+    if (challenge.creatorId) {
+      [opponent] = await db
+        .select({
+          name: users.name,
+        })
+        .from(users)
+        .where(eq(users.id, challenge.creatorId))
+        .limit(1);
+      if (!opponent) {
+        console.log("Opponent ID in status", challenge.creatorId);
+        opponent = { name: challenge.creatorId.split("-").reverse()[0] };
+      }
+    } else {
+      opponent = { name: "Guest" };
+    }
+  }
+
   const myGuesses = isCreator
     ? challenge.playerA_Guesses
     : challenge.playerB_Guesses;
@@ -153,13 +199,13 @@ export default async function StatusPage({
             gap: "1rem",
           }}
         >
-          <p style={{ textAlign: "center", width: "70vw" }}>
+          {/* <p style={{ textAlign: "center", width: "70vw" }}>
             {myEfficiency === opponentEfficiency
               ? "It's a tie! Both you and your opponent had the same efficiency score. Great minds think alike!"
               : myEfficiency > opponentEfficiency
                 ? "Wow! You won! You had a higher efficiency score than your opponent."
                 : "Dang! You lost! Your opponent had a higher efficiency score than you."}
-          </p>
+          </p> */}
         </div>
       )}
     </div>

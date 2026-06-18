@@ -74,13 +74,13 @@ export const challenges = pgTable('challenges', {
   id: uuid('id').primaryKey().defaultRandom(), // Secure URL ID
   
   // Player A (Creator)
-  creatorId: text('creator_id'), // Nullable for guests
+  creatorId: text('creator_id').notNull(), // Random for guests
   wordForB: text('word_for_b').notNull(),
   playerA_Guesses: jsonb('player_a_guesses').$type<string[]>().default([]).notNull(),
   playerA_Efficiency: doublePrecision('player_a_efficiency').default(0),
 
   // Player B (Joiner)
-  opponentId: text('opponent_id'), // Nullable for guests
+  opponentId: text('opponent_id'), // Random for guests
   wordForA: text('word_for_a').notNull().default(""), // Set when User B locks the challenge
   playerB_Guesses: jsonb('player_b_guesses').$type<string[]>().default([]).notNull(),
   playerB_Efficiency: doublePrecision('player_b_efficiency').default(0),
@@ -98,7 +98,7 @@ export const matchResults = pgTable('match_results', {
   challengeId: uuid('challenge_id').references(() => challenges.id).notNull(),
   
   // Player Details for this specific match
-  playerId: text('player_id').references(() => users.id), // Nullable for guests
+  playerId: text('player_id').references(() => users.id).notNull(), // Random for guests
   playerName: text('player_name').notNull(), 
   
   // The Outcome

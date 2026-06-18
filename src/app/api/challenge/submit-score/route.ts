@@ -79,6 +79,9 @@ export async function POST(request: Request) {
       duel.playerB_Guesses.length === 6 ||
       duel.playerB_Guesses.includes(duel.wordForB);
     const isGameOver = ACompleted && BCompleted;
+    console.log("Game over! Updating status for challenge:", challengeId);
+    console.log(ACompleted, BCompleted);
+
 
     if (isGameOver) {
       updatePayload.status = "completed";
@@ -122,10 +125,10 @@ export async function POST(request: Request) {
         opponentName = "Guest Opponent";
       }
       const isWinner = updatePayload.winnerId === playerId;
+      console.log("Game over! Player:", playerId, "Opponent:", opponentId, "Winner:", updatePayload.winnerId);
 
       // 6. IF GAME OVER -> Update Global Stats & Ledgers!
       if (isGameOver) {
-        console.log("Game over! Updating status for challenge:", challengeId);
 
         if (playerId) {
           // THE FIX: The UPSERT (Insert if new, Update if returning)

@@ -3,6 +3,7 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import styles from "./page.module.css";
 import AppButton from "@/components/Buttons/AppButton";
+import { usePlayer } from "@/hooks/usePlayer";
 
 export const GoogleIcon = () => {
   return (
@@ -34,9 +35,11 @@ export const GoogleIcon = () => {
 };
 
 export default function Home() {
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
+  const { player, isLoading } = usePlayer();
+  console.log(player);
 
-  if (status === "loading") {
+  if (isLoading) {
     return (
       <main className={styles.loaderContainer}>
         <div className={styles.spinner}></div>
@@ -48,16 +51,18 @@ export default function Home() {
     <main className={styles.main}>
       {/* Stark, bordered header */}
       <div className={styles.wrapper}>
-        {!session?.user && (
+        {!player?.user && (
           <p>
-            Love wordle? Try ForgeWord, a competitive twist on the classic wordle
-            game. Challenge friends to guess your secret word in 6 attempts, while you try to guess theirs. Sign up to save progress and climb the global leaderboard!
+            Love wordle? Try ForgeWord, a competitive twist on the classic
+            wordle game. Challenge friends to guess your secret word in 6
+            attempts, while you try to guess theirs. Sign up to save progress
+            and climb the global leaderboard!
           </p>
         )}
 
         {/* Centered minimal content area */}
         <div className={styles.content}>
-          {!session?.user ? (
+          {!player?.user ? (
             <>
               <p className={styles.promptText}>Log in to play.</p>
               <AppButton
@@ -70,21 +75,16 @@ export default function Home() {
             <>
               <div className={styles.welcomeBox}>
                 <p className={styles.promptText}>Welcome back,</p>
-                {session.user.image && (
+                {player.user.image && (
                   <img
-                    src={session.user.image}
+                    src={player.user.image}
                     alt="Profile"
                     className={styles.profilePic}
                     referrerPolicy="no-referrer"
                   />
                 )}
-                <p className={styles.welcomeName}>{session.user.name}</p>
+                <p className={styles.welcomeName}>{player.user.name}</p>
               </div>
-              <AppButton
-                variant="primary"
-                routeURL="/challenges/create"
-                text="Create challenge"
-              />
               <AppButton
                 variant="primary"
                 routeURL="/challenges"
@@ -97,6 +97,11 @@ export default function Home() {
               />
             </>
           )}
+          <AppButton
+            variant="primary"
+            routeURL="/challenges/create"
+            text="Create challenge"
+          />
         </div>
       </div>
     </main>

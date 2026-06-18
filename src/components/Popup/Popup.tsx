@@ -5,6 +5,7 @@ import styles from "./Popup.module.css";
 import { Frown, Trophy, X } from "lucide-react";
 import AppButton from "../Buttons/AppButton";
 import { GoogleIcon } from "@/app/page";
+import { usePlayer } from "@/hooks/usePlayer";
 
 interface PopupProps {
   gameStatus: "won" | "lost";
@@ -25,7 +26,7 @@ export default function Popup({
   chances,
   challengeId,
 }: PopupProps) {
-  const { data: session } = useSession();
+  const { player } = usePlayer();
 
   const isWon = gameStatus === "won";
 
@@ -60,11 +61,11 @@ export default function Popup({
         </p>
 
         {/* If they are a guest, politely suggest they log in */}
-        {!session && <p style={{ paddingTop: "1rem" }}>{askToLogin}</p>}
+        {player.isGuest && <p style={{ paddingTop: "1rem" }}>{askToLogin}</p>}
 
         {/* Dynamic Action Area */}
         <div className={styles.buttonGroup}>
-          {!session ? (
+          {player.isGuest ? (
             <AppButton 
               onClick={handleLoginClick} 
               text="Log in with Google" 

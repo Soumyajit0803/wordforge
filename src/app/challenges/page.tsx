@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
@@ -17,9 +18,34 @@ export async function generateMetadata() {
 }
 
 export default async function MyChallengesPage() {
+  // 1. Check for logged-in user session
   const session = await getServerSession(authOptions);
+  let userId = session?.user?.id;
+  let isGuest = false;
 
-  if (!session || !session.user) {
+  // 2. If no active session, check for the guest cookie
+  if (!userId) {
+    const cookieStore = await cookies();
+    const guestProfileStr = cookieStore.get("guest_profile")?.value;
+    
+    if (guestProfileStr) {
+      try {
+        const guestProfile = JSON.parse(guestProfileStr);
+        userId = guestProfile.id;
+        isGuest = true;
+      } catch (e) {
+        console.error("Failed to parse guest cookie", e);
+      }
+    }
+  }
+
+  // 3. Handle state where user is not logged in and has no guest cookie yet
+  if (!userId) {
+    return <div>Loading User...</div>; // Or redirect them to a setup route
+  }
+
+  // 4. Handle Guest State (Members Only logic)
+  if (isGuest) {
     return (
       <main className={styles.container}>
         <div className={styles.header}>
@@ -30,7 +56,7 @@ export default async function MyChallengesPage() {
     );
   }
 
-  const userId = session.user.id;
+  // 5. Proceed with Database Query for Authenticated Users
   const creatorAlias = alias(users, "creator");
   const opponentAlias = alias(users, "opponent");
 
