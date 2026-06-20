@@ -7,38 +7,26 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { cookies } from "next/headers";
 
 // --- THE EFFICIENCY ALGORITHM ---
-// This calculates how "smart" the user played.
 function calculateEfficiencyIQ(guesses: string[], targetWord: string): number {
   if (guesses.length === 0) return 0;
 
-  let score = 100; // Base score
+  let score = 100;
   const targetChars = targetWord.split("");
   const knownGrayLetters = new Set<string>();
 
   guesses.forEach((guess, index) => {
-    // 1. Penalty for taking too many guesses (Logic > Luck)
     score -= index * 2.5;
-
-    // 2. The "Waste" Penalty: Did they guess a letter they already knew was wrong?
     for (const char of guess) {
-      if (knownGrayLetters.has(char)) {
-        score -= 5; // -5 IQ points for wasting a keystroke on a dead letter!
-      }
+      if (knownGrayLetters.has(char)) score -= 5;
     }
-
-    // 3. Update known gray letters for the next loop
     for (const char of guess) {
-      if (!targetChars.includes(char)) {
-        knownGrayLetters.add(char);
-      }
+      if (!targetChars.includes(char)) knownGrayLetters.add(char);
     }
   });
 
-  // Did they actually win? If the last guess isn't the target, massive penalty.
   const isWin = guesses.includes(targetWord);
   if (!isWin) score -= 40;
 
-  // Ensure score stays between 0 and 100
   return Math.max(0, Math.min(100, score));
 }
 
@@ -50,17 +38,14 @@ export async function POST(request: Request) {
     const { challengeId, isCreator, guesses, targetWord } = body;
 
     if (!challengeId || !guesses) {
-      return NextResponse.json(
-        { error: "Missing game data." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing game data." }, { status: 400 });
     }
 
     let userId: string | undefined = session?.user?.id;
     let isGuest: boolean = false;
     let userName: string = session?.user?.name || "";
 
-    // 2. If no active session, check for the guest cookie
+    // 1. Resolve User Identity
     if (!userId) {
       const cookieStore = await cookies();
       const guestProfileStr = cookieStore.get("guest_profile")?.value;
@@ -77,20 +62,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 1. Calculate this player's IQ
-    const efficiencyScore = calculateEfficiencyIQ(guesses, targetWord);
-    // 2. Fetch the current state of the duel
-
-    // 3. Prepare the update payload for the challenges table
-    const updatePayload: any = isCreator
-      ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
-      : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
-
-    await db
-      .update(challenges)
-      .set(updatePayload)
-      .where(eq(challenges.id, challengeId));
-
+    // 2. Fetch the duel BEFORE updating to construct the full update payload
     const [duel] = await db
       .select()
       .from(challenges)
@@ -99,59 +71,59 @@ export async function POST(request: Request) {
 
     if (!duel) throw new Error("Duel not found.");
 
-    // 4. CHECK FOR GAME OVER: Has the opponent already finished?
-    const ACompleted =
-      duel.playerA_Guesses.length === 6 ||
-      duel.playerA_Guesses.includes(duel.wordForA);
-    const BCompleted =
-      duel.playerB_Guesses.length === 6 ||
-      duel.playerB_Guesses.includes(duel.wordForB);
-    const isGameOver = ACompleted && BCompleted;
-    console.log("Game over! Updating status for challenge:", challengeId);
-    console.log(ACompleted, BCompleted);
-    console.log("Game duel from which to fetch details: ", duel);
+    // 3. Calculate this player's IQ
+    const efficiencyScore = calculateEfficiencyIQ(guesses, targetWord);
+
+    const updatePayload: any = isCreator
+      ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
+      : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
+
+    // 4. CHECK FOR GAME OVER
+    const isCurrentPlayerDone = guesses.length === 6 || guesses.includes(targetWord);
+    
+    // Fallbacks just in case the opponent hasn't played yet (null/undefined)
+    const opponentGuesses = isCreator ? duel.playerB_Guesses : duel.playerA_Guesses;
+    const opponentWord = isCreator ? duel.wordForB : duel.wordForA;
+    const isOpponentDone = opponentGuesses && (opponentGuesses.length === 6 || opponentGuesses.includes(opponentWord));
+
+    const isGameOver = isCurrentPlayerDone && isOpponentDone;
+
+    // Grab opponent's efficiency from the database (no need to recalculate!)
+    const opponentEfficiency = isCreator ? duel.playerB_Efficiency : duel.playerA_Efficiency;
+    let winnerId: string | null = null;
 
     if (isGameOver) {
       updatePayload.status = "completed";
       updatePayload.completedAt = new Date();
 
-      // Determine Winner (Highest Efficiency wins!)
-      const opponentEfficiency = isCreator
-        ? duel.playerB_Efficiency!
-        : duel.playerA_Efficiency!;
-
-      if (efficiencyScore > opponentEfficiency) {
-        updatePayload.winnerId = isCreator ? duel.creatorId : duel.opponentId;
-      } else if (opponentEfficiency > efficiencyScore) {
-        updatePayload.winnerId = isCreator ? duel.opponentId : duel.creatorId;
-      } else {
-        updatePayload.winnerId = "DRAW";
+      if (opponentEfficiency !== null && opponentEfficiency !== undefined) {
+        if (efficiencyScore > opponentEfficiency) {
+          winnerId = isCreator ? duel.creatorId : duel.opponentId;
+        } else if (opponentEfficiency > efficiencyScore) {
+          winnerId = isCreator ? duel.opponentId : duel.creatorId;
+        } else {
+          winnerId = "DRAW";
+        }
+        updatePayload.winnerId = winnerId;
       }
     }
 
-    // 6. IF GAME OVER -> Update Global Stats & Ledgers!
+    // 5. Execute ONE database update with all data intact
+    await db
+      .update(challenges)
+      .set(updatePayload)
+      .where(eq(challenges.id, challengeId));
+
+    console.log("Updated challenge:", challengeId, "| Game Over:", isGameOver);
+
+    // 6. IF GAME OVER -> Update Global Stats & Ledgers
     if (isGameOver) {
-      // We only update stats if the player is logged in (has a valid UUID, not a guest session)
       const playerId = isCreator ? duel.creatorId : duel.opponentId;
       const opponentId = isCreator ? duel.opponentId : duel.creatorId;
+      const isWinner = winnerId === playerId;
 
-      var opponentName: string;
-      if (opponentId) {
-        const [opponentNameResult] = await db
-          .select({ name: users.name })
-          .from(users)
-          .where(eq(users.id, opponentId))
-          .limit(1);
-        opponentName = opponentNameResult?.name || "Amazing guest";
-      } else {
-        opponentName = "Amazing guest";
-      }
-      const isWinner = updatePayload.winnerId === playerId;
-
-      // 6. IF GAME OVER -> Update Global Stats & Ledgers!
-
+      // Current Player Stats Update
       if (playerId && !isGuest) {
-        // THE FIX: The UPSERT (Insert if new, Update if returning)
         await db
           .insert(userStats)
           .values({
@@ -163,20 +135,16 @@ export async function POST(request: Request) {
             highestEfficiencyScore: efficiencyScore,
           })
           .onConflictDoUpdate({
-            target: userStats.userId, // If this userId already exists...
+            target: userStats.userId,
             set: {
-              // ...do the rolling average math instead!
               totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
-              totalWins: isWinner
-                ? sql`${userStats.totalWins} + 1`
-                : sql`${userStats.totalWins}`,
+              totalWins: isWinner ? sql`${userStats.totalWins} + 1` : sql`${userStats.totalWins}`,
               averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
               highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
               lastUpdated: sql`NOW()`,
             },
           });
 
-        // Insert into Match History Ledger (This part remains the same)
         await db.insert(matchResults).values({
           challengeId,
           playerId: playerId,
@@ -186,56 +154,47 @@ export async function POST(request: Request) {
           guessesUsed: guesses.length,
         });
       }
-      if (opponentId) {
-        // THE FIX: The UPSERT (Insert if new, Update if returning)
-        // fetch opponent user name
-        const opponentGuesses = isCreator
-          ? duel.playerB_Guesses
-          : duel.playerA_Guesses;
-        const opponentEfficiency = calculateEfficiencyIQ(
-          opponentGuesses,
-          isCreator ? duel.wordForB : duel.wordForA,
-        );
 
-        // Try to insert; might fail if its not a registered user.
+      // Opponent Stats Update
+      if (opponentId && opponentEfficiency !== null && opponentEfficiency !== undefined) {
+        let opponentName = "Amazing guest";
         try {
+          const [opponentUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, opponentId)).limit(1);
+          if (opponentUser) opponentName = opponentUser.name || "Amazing guest";
+
+          const opponentIsWinner = winnerId === opponentId;
+
           await db
             .insert(userStats)
             .values({
               userId: opponentId,
               playerName: opponentName,
               totalGamesPlayed: 1,
-              totalWins: isWinner ? 0 : 1,
+              totalWins: opponentIsWinner ? 1 : 0,
               averageEfficiencyScore: opponentEfficiency,
               highestEfficiencyScore: opponentEfficiency,
             })
             .onConflictDoUpdate({
-              target: userStats.userId, // If this userId already exists...
+              target: userStats.userId,
               set: {
-                // ...do the rolling average math instead!
                 totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
-                totalWins: !isWinner
-                  ? sql`${userStats.totalWins} + 1`
-                  : sql`${userStats.totalWins}`,
+                totalWins: opponentIsWinner ? sql`${userStats.totalWins} + 1` : sql`${userStats.totalWins}`,
                 averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${opponentEfficiency}) / (${userStats.totalGamesPlayed} + 1)`,
                 highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${opponentEfficiency})`,
                 lastUpdated: sql`NOW()`,
               },
             });
 
-          // Insert into Match History Ledger (This part remains the same)
           await db.insert(matchResults).values({
             challengeId,
             playerId: opponentId,
             playerName: opponentName,
-            isWinner: !isWinner,
+            isWinner: opponentIsWinner,
             efficiencyScore: opponentEfficiency,
-            guessesUsed: opponentGuesses.length,
+            guessesUsed: opponentGuesses ? opponentGuesses.length : 6,
           });
-        } catch (e : any) {
-          console.log(e.message);
-          console.log(opponentId);
-          console.log("Opponent is a guest. NOT saving results.");
+        } catch (e: any) {
+          console.log("Opponent is a guest or DB error:", e.message);
         }
       }
     }
@@ -244,15 +203,11 @@ export async function POST(request: Request) {
       success: true,
       efficiencyScore,
       isGameOver,
-      message: isGameOver
-        ? "Duel complete! Check the leaderboard."
-        : "Score saved. Waiting for opponent...",
+      message: isGameOver ? "Duel complete! Check the leaderboard." : "Score saved. Waiting for opponent...",
     });
+
   } catch (error) {
     console.error("Scoring Error:", error);
-    return NextResponse.json(
-      { error: "Failed to submit score." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to submit score." }, { status: 500 });
   }
 }

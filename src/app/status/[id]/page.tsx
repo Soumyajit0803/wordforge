@@ -77,7 +77,7 @@ export default async function StatusPage({
       opponent = { name: challenge.opponentId.split("-").reverse()[0] };
     }
   } else {
-    opponent = { name: "Guest" };
+    opponent = { name: "TBD" };
   }
   const myGuesses = isCreator
     ? challenge.playerA_Guesses

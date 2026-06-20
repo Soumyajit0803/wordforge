@@ -12,6 +12,7 @@ Future important works:
 
 Future casual works:
 1. Do better on the play/[id]/page.tsx file to have a link to go to the current challenges. User must not have to interact with the URL.
+    - Idea 1: Have a link to see status of the challenge. That page has a direct link to play area
 
 Questions:
 1. If atleast one player is guest, should we update the user_stats at all? That would actually open a loophole to achieve good results when registered user manipulates the guest/acts as the guest opponent. ANSWER: NO
