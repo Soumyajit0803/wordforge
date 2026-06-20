@@ -19,7 +19,9 @@ export default async function ChallengePage({ params }: { params: { id: string }
   let isGuest = false;
 
   console.log("Current User ID:", currentUserId);
+  console.log(session);
 
+  // if current user is not authenticated, make a guest profile
   if (!currentUserId) {
     const cookieStore = await cookies();
     const guestProfileStr = cookieStore.get("guest_profile")?.value;
@@ -30,10 +32,12 @@ export default async function ChallengePage({ params }: { params: { id: string }
         isGuest = true;
       } catch (err) {
         console.error("Failed to parse guest profile", err);
+        console.log("No guest profile found. Please visit later.")
       }
     }
   }
 
+  // current state of challenge 
   const challengeResult = await db
     .select({ challenge: challenges, creatorName: users.name })
     .from(challenges)
@@ -49,7 +53,8 @@ export default async function ChallengePage({ params }: { params: { id: string }
 
   const { challenge, creatorName } = challengeResult[0];
   let challengerFirstName;
-  if(!isGuest){
+
+  if(creatorName){
     challengerFirstName = creatorName?.split(" ")[0] || "Guest";
   } else {
     challengerFirstName = challenge.creatorId.split("-").reverse()[0];

@@ -4,6 +4,7 @@ import { challenges, userStats, matchResults, users } from "@/app/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { cookies } from "next/headers";
 
 // --- THE EFFICIENCY ALGORITHM ---
 // This calculates how "smart" the user played.
@@ -55,9 +56,41 @@ export async function POST(request: Request) {
       );
     }
 
+    let userId: string | undefined = session?.user?.id;
+    let isGuest: boolean = false;
+    let userName: string = session?.user?.name || "";
+
+    // 2. If no active session, check for the guest cookie
+    if (!userId) {
+      const cookieStore = await cookies();
+      const guestProfileStr = cookieStore.get("guest_profile")?.value;
+
+      if (guestProfileStr) {
+        try {
+          const guestProfile = JSON.parse(guestProfileStr);
+          userId = guestProfile.id;
+          userName = guestProfile.id.split("-").reverse()[0];
+          isGuest = true;
+        } catch (e) {
+          console.error("Failed to parse guest cookie", e);
+        }
+      }
+    }
+
     // 1. Calculate this player's IQ
     const efficiencyScore = calculateEfficiencyIQ(guesses, targetWord);
     // 2. Fetch the current state of the duel
+
+    // 3. Prepare the update payload for the challenges table
+    const updatePayload: any = isCreator
+      ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
+      : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
+
+    await db
+      .update(challenges)
+      .set(updatePayload)
+      .where(eq(challenges.id, challengeId));
+
     const [duel] = await db
       .select()
       .from(challenges)
@@ -65,11 +98,6 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!duel) throw new Error("Duel not found.");
-
-    // 3. Prepare the update payload for the challenges table
-    const updatePayload: any = isCreator
-      ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
-      : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
 
     // 4. CHECK FOR GAME OVER: Has the opponent already finished?
     const ACompleted =
@@ -81,7 +109,7 @@ export async function POST(request: Request) {
     const isGameOver = ACompleted && BCompleted;
     console.log("Game over! Updating status for challenge:", challengeId);
     console.log(ACompleted, BCompleted);
-
+    console.log("Game duel from which to fetch details: ", duel);
 
     if (isGameOver) {
       updatePayload.status = "completed";
@@ -101,12 +129,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // 5. Save the state to the Challenges Table
-    await db
-      .update(challenges)
-      .set(updatePayload)
-      .where(eq(challenges.id, challengeId));
-
     // 6. IF GAME OVER -> Update Global Stats & Ledgers!
     if (isGameOver) {
       // We only update stats if the player is logged in (has a valid UUID, not a guest session)
@@ -120,59 +142,63 @@ export async function POST(request: Request) {
           .from(users)
           .where(eq(users.id, opponentId))
           .limit(1);
-        opponentName = opponentNameResult?.name || "Guest Opponent";
+        opponentName = opponentNameResult?.name || "Amazing guest";
       } else {
-        opponentName = "Guest Opponent";
+        opponentName = "Amazing guest";
       }
       const isWinner = updatePayload.winnerId === playerId;
-      console.log("Game over! Player:", playerId, "Opponent:", opponentId, "Winner:", updatePayload.winnerId);
 
       // 6. IF GAME OVER -> Update Global Stats & Ledgers!
-      if (isGameOver) {
 
-        if (playerId) {
-          // THE FIX: The UPSERT (Insert if new, Update if returning)
-          await db
-            .insert(userStats)
-            .values({
-              userId: playerId,
-              playerName: session?.user?.name || "Player",
-              totalGamesPlayed: 1,
-              totalWins: isWinner ? 1 : 0,
-              averageEfficiencyScore: efficiencyScore,
-              highestEfficiencyScore: efficiencyScore,
-            })
-            .onConflictDoUpdate({
-              target: userStats.userId, // If this userId already exists...
-              set: {
-                // ...do the rolling average math instead!
-                totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
-                totalWins: isWinner
-                  ? sql`${userStats.totalWins} + 1`
-                  : sql`${userStats.totalWins}`,
-                averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
-                highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
-                lastUpdated: sql`NOW()`,
-              },
-            });
-
-          // Insert into Match History Ledger (This part remains the same)
-          await db.insert(matchResults).values({
-            challengeId,
-            playerId: playerId,
-            playerName: session?.user?.name || "Player",
-            isWinner: isWinner,
-            efficiencyScore: efficiencyScore,
-            guessesUsed: guesses.length,
+      if (playerId && !isGuest) {
+        // THE FIX: The UPSERT (Insert if new, Update if returning)
+        await db
+          .insert(userStats)
+          .values({
+            userId: playerId,
+            playerName: userName,
+            totalGamesPlayed: 1,
+            totalWins: isWinner ? 1 : 0,
+            averageEfficiencyScore: efficiencyScore,
+            highestEfficiencyScore: efficiencyScore,
+          })
+          .onConflictDoUpdate({
+            target: userStats.userId, // If this userId already exists...
+            set: {
+              // ...do the rolling average math instead!
+              totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
+              totalWins: isWinner
+                ? sql`${userStats.totalWins} + 1`
+                : sql`${userStats.totalWins}`,
+              averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
+              highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
+              lastUpdated: sql`NOW()`,
+            },
           });
-        }
-        if (opponentId) {
-          // THE FIX: The UPSERT (Insert if new, Update if returning)
-          // fetch opponent user name
-          const opponentGuesses = isCreator
-            ? duel.playerB_Guesses
-            : duel.playerA_Guesses;
-          const opponentEfficiency = calculateEfficiencyIQ(opponentGuesses, isCreator ? duel.wordForB : duel.wordForA);
+
+        // Insert into Match History Ledger (This part remains the same)
+        await db.insert(matchResults).values({
+          challengeId,
+          playerId: playerId,
+          playerName: userName,
+          isWinner: isWinner,
+          efficiencyScore: efficiencyScore,
+          guessesUsed: guesses.length,
+        });
+      }
+      if (opponentId) {
+        // THE FIX: The UPSERT (Insert if new, Update if returning)
+        // fetch opponent user name
+        const opponentGuesses = isCreator
+          ? duel.playerB_Guesses
+          : duel.playerA_Guesses;
+        const opponentEfficiency = calculateEfficiencyIQ(
+          opponentGuesses,
+          isCreator ? duel.wordForB : duel.wordForA,
+        );
+
+        // Try to insert; might fail if its not a registered user.
+        try {
           await db
             .insert(userStats)
             .values({
@@ -206,6 +232,10 @@ export async function POST(request: Request) {
             efficiencyScore: opponentEfficiency,
             guessesUsed: opponentGuesses.length,
           });
+        } catch (e : any) {
+          console.log(e.message);
+          console.log(opponentId);
+          console.log("Opponent is a guest. NOT saving results.");
         }
       }
     }

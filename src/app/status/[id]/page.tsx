@@ -53,50 +53,32 @@ export default async function StatusPage({
   }
 
   const { challenge, creatorName } = challengeResult[0];
-  let challengerFirstName;
+  let creatorFirstName;
   if (creatorName) {
-    challengerFirstName = creatorName?.split(" ")[0];
+    creatorFirstName = creatorName?.split(" ")[0];
   } else {
-    challengerFirstName = currentUserId?.split("-").reverse()[0];
+    creatorFirstName = challenge.creatorId.split("-").reverse()[0];
   }
 
   const isCreator = currentUserId === challenge.creatorId;
   let opponent;
+  console.log("Am I a creator?:", isCreator);
 
-  if (isCreator) {
-    if (challenge.opponentId) {
-      [opponent] = await db
-        .select({
-          name: users.name,
-        })
-        .from(users)
-        .where(eq(users.id, challenge.opponentId))
-        .limit(1);
-      if (!opponent) {
-        console.log("Opponent ID in status", challenge.opponentId);
-        opponent = { name: challenge.opponentId.split("-").reverse()[0] };
-      }
-    } else {
-      opponent = { name: "Guest" };
+  if (challenge.opponentId) {
+    [opponent] = await db
+      .select({
+        name: users.name,
+      })
+      .from(users)
+      .where(eq(users.id, challenge.opponentId))
+      .limit(1);
+    if (!opponent) {
+      console.log("Opponent ID in status", challenge.opponentId);
+      opponent = { name: challenge.opponentId.split("-").reverse()[0] };
     }
   } else {
-    if (challenge.creatorId) {
-      [opponent] = await db
-        .select({
-          name: users.name,
-        })
-        .from(users)
-        .where(eq(users.id, challenge.creatorId))
-        .limit(1);
-      if (!opponent) {
-        console.log("Opponent ID in status", challenge.creatorId);
-        opponent = { name: challenge.creatorId.split("-").reverse()[0] };
-      }
-    } else {
-      opponent = { name: "Guest" };
-    }
+    opponent = { name: "Guest" };
   }
-
   const myGuesses = isCreator
     ? challenge.playerA_Guesses
     : challenge.playerB_Guesses;
@@ -147,7 +129,7 @@ export default async function StatusPage({
       <ReplayBoard
         duelData={{
           ...challenge,
-          creatorName: challengerFirstName,
+          creatorName: creatorFirstName,
           opponentName: opponent?.name || "Guest Opponent",
         }}
         currentUserId={currentUserId}
@@ -199,13 +181,13 @@ export default async function StatusPage({
             gap: "1rem",
           }}
         >
-          {/* <p style={{ textAlign: "center", width: "70vw" }}>
+          <p style={{ textAlign: "center", width: "70vw" }}>
             {myEfficiency === opponentEfficiency
               ? "It's a tie! Both you and your opponent had the same efficiency score. Great minds think alike!"
               : myEfficiency > opponentEfficiency
                 ? "Wow! You won! You had a higher efficiency score than your opponent."
-                : "Dang! You lost! Your opponent had a higher efficiency score than you."}
-          </p> */}
+                : "Dang you lost! Your opponent had a higher efficiency score than you."}
+          </p>
         </div>
       )}
     </div>

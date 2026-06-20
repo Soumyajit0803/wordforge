@@ -35,7 +35,7 @@ export default function Popup({
     signIn("google", { callbackUrl: window.location.href });
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !player) return null;
 
   return (
     <div className={styles.overlay}>

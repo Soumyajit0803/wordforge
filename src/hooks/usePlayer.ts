@@ -16,22 +16,22 @@ type Player = {
   isGuest: boolean;
 };
 
-const generateGuestName = () => {
-  const adjectives = ["Sneaky", "Mighty", "Cosmic", "Quantum", "Hyper"];
-  const nouns = ["Axolotl", "Godzilla", "Capybara", "Kraken", "Dragon"];
-  const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-  return `${random(adjectives)} ${random(nouns)}`;
-};
+// const generateGuestName = () => {
+//   const adjectives = ["Sneaky", "Mighty", "Cosmic", "Quantum", "Hyper"];
+//   const nouns = ["Axolotl", "Godzilla", "Capybara", "Kraken", "Dragon"];
+//   const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+//   return `${random(adjectives)} ${random(nouns)}`;
+// };
 
 export function usePlayer() {
   const { data: session, status } = useSession();
-  const guestName = generateGuestName();
-  const newGuest = {
-    name: guestName,
-    id: crypto.randomUUID() + "-" + guestName,
-    isGuest: true,
-  };
-  const [player, setPlayer] = useState<Player>({user: newGuest, isGuest: true});
+  // const guestName = generateGuestName();
+  // const newGuest = {
+  //   name: guestName,
+  //   id: crypto.randomUUID() + "-" + guestName,
+  //   isGuest: true,
+  // };
+  const [player, setPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -44,7 +44,7 @@ export function usePlayer() {
 
       if (!storedGuest) {
         // Set cookie to expire in 30 days
-        Cookies.set("guest_profile", JSON.stringify(newGuest), { expires: 30 });
+        console.log("No guest profile found. Please visit later.")
       } else {
         setPlayer(JSON.parse(storedGuest));
       }

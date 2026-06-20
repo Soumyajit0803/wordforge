@@ -79,8 +79,9 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
 export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
   // Determine who won for highlighting
-  const creatorWon = duelData.winnerId && duelData.winnerId === duelData.creatorId;
-  const opponentWon = duelData.winnerId && duelData.winnerId === duelData.opponentId;
+  const creatorWon = duelData.winnerId ? (duelData.winnerId === duelData.creatorId) : (duelData.playerA_Efficiency > duelData.playerB_Efficiency);
+  const matchDrawn = duelData.playerA_Efficiency === duelData.playerB_Efficiency;
+
   console.log("DuelData", duelData);
 
   return (
@@ -111,7 +112,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           targetWord={duelData.wordForB} // Opponent guesses wordForB
           guesses={duelData.playerB_Guesses}
           iq={duelData.playerB_Efficiency}
-          isWinner={opponentWon}
+          isWinner={!creatorWon}
         />
 
       </div>

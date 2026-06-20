@@ -25,7 +25,10 @@ export async function POST(request: Request) {
           isGuest = true;
         } catch (err) {
           console.error("Failed to parse guest profile", err);
+          console.log("No guest profile found. Please visit later.");
         }
+      } else {
+        console.log("No guest profile found. Please visit later.");
       }
     }
 
@@ -36,15 +39,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid word length" }, { status: 400 });
     }
 
-    // 2. Use the secure ID from the session
-    
+    if(!secureCreatorId) {
+      return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
+    }
 
-    // 3. Single atomic insert into the merged challenges table
+
     const [newChallenge] = await db
       .insert(challenges)
       .values({ 
         wordForB: wordForB.toUpperCase(), // Store uppercase for consistency
-        creatorId: secureCreatorId,
+        creatorId: secureCreatorId, // safe; we check above that it exists
         status: "pending" // Explicitly set to pending, waiting for Player B
       })
       .returning({ id: challenges.id });
