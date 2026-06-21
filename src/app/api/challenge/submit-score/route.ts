@@ -38,23 +38,26 @@ export async function POST(request: Request) {
     const { challengeId, isCreator, guesses, targetWord } = body;
 
     if (!challengeId || !guesses) {
-      return NextResponse.json({ error: "Missing game data." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing game data." },
+        { status: 400 },
+      );
     }
 
-    let userId: string | undefined = session?.user?.id;
+    let currPlayerId: string | undefined = session?.user?.id;
     let isGuest: boolean = false;
-    let userName: string = session?.user?.name || "";
+    let CurrPlayerName: string = session?.user?.name || "";
 
     // 1. Resolve User Identity
-    if (!userId) {
+    if (!currPlayerId) {
       const cookieStore = await cookies();
       const guestProfileStr = cookieStore.get("guest_profile")?.value;
 
       if (guestProfileStr) {
         try {
           const guestProfile = JSON.parse(guestProfileStr);
-          userId = guestProfile.id;
-          userName = guestProfile.id.split("-").reverse()[0];
+          currPlayerId = guestProfile.id;
+          CurrPlayerName = guestProfile.id.split("-").reverse()[0];
           isGuest = true;
         } catch (e) {
           console.error("Failed to parse guest cookie", e);
@@ -79,33 +82,37 @@ export async function POST(request: Request) {
       : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
 
     // 4. CHECK FOR GAME OVER
-    const isCurrentPlayerDone = guesses.length === 6 || guesses.includes(targetWord);
-    
+    const isCurrentPlayerDone =
+      guesses.length === 6 || guesses.includes(targetWord);
+
     // Fallbacks just in case the opponent hasn't played yet (null/undefined)
-    const opponentGuesses = isCreator ? duel.playerB_Guesses : duel.playerA_Guesses;
-    const opponentWord = isCreator ? duel.wordForB : duel.wordForA;
-    const isOpponentDone = opponentGuesses && (opponentGuesses.length === 6 || opponentGuesses.includes(opponentWord));
+    const rivalGuesses = isCreator
+      ? duel.playerB_Guesses
+      : duel.playerA_Guesses;
+    const rivalWord = isCreator ? duel.wordForB : duel.wordForA;
+    const isRivalDone =
+      rivalGuesses &&
+      (rivalGuesses.length === 6 || rivalGuesses.includes(rivalWord));
 
-    const isGameOver = isCurrentPlayerDone && isOpponentDone;
+    const isGameOver = isCurrentPlayerDone && isRivalDone;
 
-    // Grab opponent's efficiency from the database (no need to recalculate!)
-    const opponentEfficiency = isCreator ? duel.playerB_Efficiency : duel.playerA_Efficiency;
+    // Grab rival's efficiency from the database (no need to recalculate!)
+    let rivalEfficiency : number = isCreator
+      ? duel.playerB_Efficiency!
+      : duel.playerA_Efficiency!;
     let winnerId: string | null = null;
 
     if (isGameOver) {
-      updatePayload.status = "completed";
       updatePayload.completedAt = new Date();
 
-      if (opponentEfficiency !== null && opponentEfficiency !== undefined) {
-        if (efficiencyScore > opponentEfficiency) {
-          winnerId = isCreator ? duel.creatorId : duel.opponentId;
-        } else if (opponentEfficiency > efficiencyScore) {
-          winnerId = isCreator ? duel.opponentId : duel.creatorId;
-        } else {
-          winnerId = "DRAW";
-        }
-        updatePayload.winnerId = winnerId;
+      if (efficiencyScore > rivalEfficiency) {
+        winnerId = isCreator ? duel.creatorId : duel.opponentId;
+      } else if (rivalEfficiency > efficiencyScore) {
+        winnerId = isCreator ? duel.opponentId : duel.creatorId;
+      } else {
+        winnerId = "DRAW";
       }
+      updatePayload.winnerId = winnerId;
     }
 
     // 5. Execute ONE database update with all data intact
@@ -118,83 +125,97 @@ export async function POST(request: Request) {
 
     // 6. IF GAME OVER -> Update Global Stats & Ledgers
     if (isGameOver) {
-      const playerId = isCreator ? duel.creatorId : duel.opponentId;
-      const opponentId = isCreator ? duel.opponentId : duel.creatorId;
-      const isWinner = winnerId === playerId;
+      const rivalId: string = isCreator ? duel.opponentId! : duel.creatorId!;
+      const isWinner = winnerId === currPlayerId;
+      let isRivalGuest = true;
+      let rivalName = "Amazing guest";
 
-      // Current Player Stats Update
-      if (playerId && !isGuest) {
-        await db
-          .insert(userStats)
-          .values({
-            userId: playerId,
-            playerName: userName,
-            totalGamesPlayed: 1,
-            totalWins: isWinner ? 1 : 0,
-            averageEfficiencyScore: efficiencyScore,
-            highestEfficiencyScore: efficiencyScore,
-          })
-          .onConflictDoUpdate({
-            target: userStats.userId,
-            set: {
-              totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
-              totalWins: isWinner ? sql`${userStats.totalWins} + 1` : sql`${userStats.totalWins}`,
-              averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
-              highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
-              lastUpdated: sql`NOW()`,
-            },
-          });
+      const [opponentUser] = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, rivalId))
+        .limit(1);
 
-        await db.insert(matchResults).values({
-          challengeId,
-          playerId: playerId,
-          playerName: userName,
-          isWinner: isWinner,
-          efficiencyScore: efficiencyScore,
-          guessesUsed: guesses.length,
-        });
+      if (opponentUser) {
+        isRivalGuest = false; // We found them in the DB, they are a real user!
+        rivalName = opponentUser.name || "Unknown User";
       }
 
-      // Opponent Stats Update
-      if (opponentId && opponentEfficiency !== null && opponentEfficiency !== undefined) {
-        let opponentName = "Amazing guest";
-        try {
-          const [opponentUser] = await db.select({ name: users.name }).from(users).where(eq(users.id, opponentId)).limit(1);
-          if (opponentUser) opponentName = opponentUser.name || "Amazing guest";
-
-          const opponentIsWinner = winnerId === opponentId;
-
+      // Current Player Stats Update
+      if (!isGuest && !isRivalGuest) {
+        if (currPlayerId) {
           await db
             .insert(userStats)
             .values({
-              userId: opponentId,
-              playerName: opponentName,
+              userId: currPlayerId,
+              playerName: CurrPlayerName,
               totalGamesPlayed: 1,
-              totalWins: opponentIsWinner ? 1 : 0,
-              averageEfficiencyScore: opponentEfficiency,
-              highestEfficiencyScore: opponentEfficiency,
+              totalWins: isWinner ? 1 : 0,
+              averageEfficiencyScore: efficiencyScore,
+              highestEfficiencyScore: efficiencyScore,
             })
             .onConflictDoUpdate({
               target: userStats.userId,
               set: {
                 totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
-                totalWins: opponentIsWinner ? sql`${userStats.totalWins} + 1` : sql`${userStats.totalWins}`,
-                averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${opponentEfficiency}) / (${userStats.totalGamesPlayed} + 1)`,
-                highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${opponentEfficiency})`,
+                totalWins: isWinner
+                  ? sql`${userStats.totalWins} + 1`
+                  : sql`${userStats.totalWins}`,
+                averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
+                highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
                 lastUpdated: sql`NOW()`,
               },
             });
 
           await db.insert(matchResults).values({
             challengeId,
-            playerId: opponentId,
-            playerName: opponentName,
-            isWinner: opponentIsWinner,
-            efficiencyScore: opponentEfficiency,
-            guessesUsed: opponentGuesses ? opponentGuesses.length : 6,
+            playerId: currPlayerId,
+            playerName: CurrPlayerName,
+            isWinner: isWinner,
+            efficiencyScore: efficiencyScore,
+            guessesUsed: guesses.length,
           });
-        } catch (e: any) {
-          console.log("Opponent is a guest or DB error:", e.message);
+        }
+
+        // Opponent Stats Update
+        if (rivalId) {
+          try {
+            const rivalIsWinner = winnerId === rivalId;
+
+            await db
+              .insert(userStats)
+              .values({
+                userId: rivalId,
+                playerName: rivalName,
+                totalGamesPlayed: 1,
+                totalWins: rivalIsWinner ? 1 : 0,
+                averageEfficiencyScore: rivalEfficiency,
+                highestEfficiencyScore: rivalEfficiency,
+              })
+              .onConflictDoUpdate({
+                target: userStats.userId,
+                set: {
+                  totalGamesPlayed: sql`${userStats.totalGamesPlayed} + 1`,
+                  totalWins: rivalIsWinner
+                    ? sql`${userStats.totalWins} + 1`
+                    : sql`${userStats.totalWins}`,
+                  averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${rivalEfficiency}) / (${userStats.totalGamesPlayed} + 1)`,
+                  highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${rivalEfficiency})`,
+                  lastUpdated: sql`NOW()`,
+                },
+              });
+
+            await db.insert(matchResults).values({
+              challengeId,
+              playerId: rivalId,
+              playerName: rivalName,
+              isWinner: rivalIsWinner,
+              efficiencyScore: rivalEfficiency,
+              guessesUsed: rivalGuesses.length,
+            });
+          } catch (e: any) {
+            console.log("Opponent is a guest or DB error:", e.message);
+          }
         }
       }
     }
@@ -203,11 +224,15 @@ export async function POST(request: Request) {
       success: true,
       efficiencyScore,
       isGameOver,
-      message: isGameOver ? "Duel complete! Check the leaderboard." : "Score saved. Waiting for opponent...",
+      message: isGameOver
+        ? "Duel complete! Check the leaderboard."
+        : "Score saved. Waiting for opponent...",
     });
-
   } catch (error) {
     console.error("Scoring Error:", error);
-    return NextResponse.json({ error: "Failed to submit score." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to submit score." },
+      { status: 500 },
+    );
   }
 }

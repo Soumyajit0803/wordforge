@@ -72,7 +72,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;
 
-  // WORKFLOW A: PENDING
+  // WORKFLOW A: Get the opponent
   if (challenge.wordForA==="") {
     if (isCreator) {
       return (
@@ -88,7 +88,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
     }
   }
 
-  // WORKFLOW B: THE DUEL
+  // WORKFLOW B: Start the challenge/duel
 
   // Check if they have already  played
   const myGuesses = isCreator ? challenge.playerA_Guesses : challenge.playerB_Guesses;

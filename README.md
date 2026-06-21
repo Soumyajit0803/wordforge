@@ -9,6 +9,7 @@ Challenge status:
 Future important works:
 1. `Current streak` not working as usual.
 2. `status` variable needs to be scrapped from database, or its implementation needs a major fix
+3. Need to fix the status page for those who are neither challenger nor opponent
 
 Future casual works:
 1. Do better on the play/[id]/page.tsx file to have a link to go to the current challenges. User must not have to interact with the URL.

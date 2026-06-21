@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db/index";
 import { challenges } from "@/app/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     // 2. Fetch current state to ensure it hasn't been hijacked
     const existingChallenge = await db
-      .select({ status: challenges.status })
+      .select()
       .from(challenges)
       .where(eq(challenges.id, challengeId))
       .limit(1);
@@ -27,7 +27,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Challenge not found." }, { status: 404 });
     }
 
-    if (existingChallenge[0].status !== "pending") {
+    console.log("Existing challenge:", existingChallenge);
+
+    if (existingChallenge[0].wordForA.length===5) { // Challenge already locked!
       return NextResponse.json(
         { error: "Too late! This duel is already in progress with someone else." },
         { status: 403 }
@@ -35,20 +37,17 @@ export async function POST(request: Request) {
     }
 
     // 3. The Atomic Update (The "Lock")
-    // By strictly requiring status to be 'pending' in the WHERE clause, 
-    // PostgreSQL guarantees that even if two people submit at the exact 
-    // same millisecond, only ONE person can lock the row.
+    // Strictly requiring wordForA to be null
     const updatedChallenge = await db
       .update(challenges)
       .set({
         wordForA: wordForA.toUpperCase(), // Ensure consistency
-        opponentId: opponentId || null,   // Null is perfectly fine for Guests
-        status: "active",
+        opponentId: opponentId,   // Null is perfectly fine for Guests
       })
       .where(
         and(
           eq(challenges.id, challengeId),
-          eq(challenges.status, "pending")
+          eq(challenges.wordForA, "") // Ensure the challenge isnt locked yet
         )
       )
       // returning() is a Postgres specific feature that lets us confirm the update worked

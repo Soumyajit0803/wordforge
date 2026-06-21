@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid word length" }, { status: 400 });
     }
 
-    if(!secureCreatorId) {
+    if(!secureCreatorId) { // depends on if the cookie generation worked or not
       return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
@@ -48,8 +48,7 @@ export async function POST(request: Request) {
       .insert(challenges)
       .values({ 
         wordForB: wordForB.toUpperCase(), // Store uppercase for consistency
-        creatorId: secureCreatorId, // safe; we check above that it exists
-        status: "pending" // Explicitly set to pending, waiting for Player B
+        creatorId: secureCreatorId, // safe; if not exist middleware creates a guest profile anyway
       })
       .returning({ id: challenges.id });
 

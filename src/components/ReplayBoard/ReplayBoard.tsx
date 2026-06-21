@@ -80,9 +80,10 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
   // Determine who won for highlighting
   const creatorWon = duelData.winnerId ? (duelData.winnerId === duelData.creatorId) : (duelData.playerA_Efficiency > duelData.playerB_Efficiency);
-  const matchDrawn = duelData.playerA_Efficiency === duelData.playerB_Efficiency;
+  const matchDrawn = duelData.winnerId === "DRAW" || (duelData.playerA_Efficiency === duelData.playerB_Efficiency);
 
-  console.log("DuelData", duelData);
+  console.log("Match drawn status:", matchDrawn);
+  console.log(duelData);
 
   return (
     <div className={styles.container}>
@@ -99,7 +100,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           targetWord={duelData.wordForA} // Creator guesses wordForA
           guesses={duelData.playerA_Guesses}
           iq={duelData.playerA_Efficiency}
-          isWinner={creatorWon}
+          isWinner={matchDrawn?false:creatorWon}
         />
 
         <div className={styles.vsBadge}>
@@ -112,7 +113,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           targetWord={duelData.wordForB} // Opponent guesses wordForB
           guesses={duelData.playerB_Guesses}
           iq={duelData.playerB_Efficiency}
-          isWinner={!creatorWon}
+          isWinner={matchDrawn?false:!creatorWon}
         />
 
       </div>

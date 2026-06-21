@@ -89,8 +89,8 @@ export default async function MyChallengesPage() {
     const { duel, creatorName, opponentName } = row;
     const isCreator = duel.creatorId === userId;
     
-    let opponentDisplay = "Pending...";
-    if (duel.status !== "pending") {
+    let opponentDisplay = "TBD";
+    if (duel.wordForA !== "") { // opponent determined
       opponentDisplay = !isCreator ? (creatorName || "Guest") : (opponentName || "Guest");
     }
 
