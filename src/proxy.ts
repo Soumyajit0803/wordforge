@@ -8,7 +8,7 @@ const generateGuestName = () => {
   return random(guestNames[1]) + random(guestNames[0]);
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Pass the request through to generate the base response
   const response = NextResponse.next();
 

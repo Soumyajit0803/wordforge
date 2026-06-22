@@ -37,6 +37,7 @@ export default async function GlobalLeaderboardPage() {
         <Trophy size={48} color="#fbbc04" className={styles.trophyIcon} />
         <h1>Global Leaderboard</h1>
         <p>Ranked by Average Efficiency IQ across all duels.</p>
+        <p>Playing against guest users do not count as legitimate challenge and will not be reflected in the leaderboard. Ask your friends to sign up to save your stats!</p>
       </header>
 
       {topPlayers.length === 0 ? (

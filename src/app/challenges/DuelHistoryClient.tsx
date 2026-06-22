@@ -8,6 +8,7 @@ type SimpleDuel = {
   id: string;
   date: string;
   opponent: string;
+  winStatus: string;
 };
 
 export default function DuelHistoryClient({ duels }: { duels: SimpleDuel[] }) {
@@ -24,10 +25,13 @@ export default function DuelHistoryClient({ duels }: { duels: SimpleDuel[] }) {
           </thead>
           <tbody>
             {duels.map((duel) => (
-              <tr key={duel.id}>
+              <tr key={duel.id} style={{
+                background: duel.winStatus==='WON'?"#D1E7DD":(duel.winStatus==='LOST'?"#F8D7DA":"#E2E3E5"),
+                color: duel.winStatus==='WON'?"#0F5132":(duel.winStatus==='LOST'?"#842029":"#41464B")
+              }}>
                 <td className={styles.dateCol}>{duel.date}</td>
                 <td className={styles.nameCol}>
-                  <span className={duel.opponent === "Pending..." ? styles.pendingText : ""}>
+                  <span className={duel.opponent === "" ? styles.pendingText : ""}>
                     {duel.opponent}
                   </span>
                 </td>

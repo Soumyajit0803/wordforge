@@ -2,9 +2,10 @@
    WRAPPER & TYPOGRAPHY
    ========================================= */
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 5rem 1rem;
+  max-width: 100%;
+  /* margin: 0 auto; */
+  margin-top: 3rem;
+  padding: 3rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,25 +14,16 @@
 
 .header {
   text-align: center;
-  margin-bottom: 3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .header h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 2rem;
   color: #1a1a1b;
-  margin: 0;
-  letter-spacing: -0.02em;
 }
 
 .header p {
   color: #787c7e;
-  font-size: 1.1rem;
-  margin: 0;
 }
 
 .wrapper {
@@ -39,6 +31,8 @@
   display: flex;
   flex-direction: column;
   gap: 3.5rem; /* Space between Active and Completed sections */
+  align-items: center;
+  justify-content: center;
 }
 
 .section {
@@ -60,11 +54,10 @@
    ========================================= */
 .tableContainer {
   background: white;
-  border-radius: 12px;
-  border: 1px solid #d3d6da;
+  border: 1px solid #000000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   overflow-x: auto; /* Handles horizontal scrolling on mobile */
-  width: 100%;
+  width: min(40rem, 100%);
 }
 
 .table {
@@ -75,14 +68,13 @@
 
 .table thead {
   background-color: #f8f9fa;
-  border-bottom: 2px solid #d3d6da;
+  border-bottom: 2px solid #ffffff;
 }
 
 .table th {
   padding: 1.2rem 1.5rem;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #787c7e;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -90,9 +82,9 @@
 
 .table td {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 2px solid #ffffff;
   vertical-align: middle;
-  color: #1a1a1b;
+  /* color: #1a1a1b; */
 }
 
 .table tbody tr:last-child td {
@@ -114,13 +106,13 @@
    ========================================= */
 .dateCol {
   font-size: 0.95rem;
-  color: #787c7e;
+  /* color: #787c7e; */
   white-space: nowrap;
 }
 
 .nameCol {
   font-weight: 600;
-  color: #1a1a1b;
+  /* color: #1a1a1b; */
 }
 
 .wordCol {
@@ -138,59 +130,6 @@
   width: 120px;
 }
 
-.pendingText {
-  color: #a8aab0;
-  font-weight: 400;
-}
-
-/* =========================================
-   STATUS PILLS & BADGES
-   ========================================= */
-.pillActive, .pillPending, .pillWon, .pillLost, .pillDraw {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  min-width: 80px;
-}
-
-/* Active Section Pills */
-.pillActive {
-  background-color: #e8f0fe;
-  color: #1a73e8; /* Google Blue */
-  border: 1px solid #d2e3fc;
-}
-
-.pillPending {
-  background-color: #f8f9fa;
-  color: #787c7e;
-  border: 1px dashed #d3d6da;
-}
-
-/* Completed Section Pills */
-.pillWon {
-  background-color: #e6f4ea;
-  color: #1e8e3e; /* Success Green */
-  border: 1px solid #ceead6;
-}
-
-.pillLost {
-  background-color: #fce8e6;
-  color: #d93025; /* Danger Red */
-  border: 1px solid #fad2cf;
-}
-
-.pillDraw {
-  background-color: #f1f3f4;
-  color: #5f6368; /* Neutral Gray */
-  border: 1px solid #e8eaed;
-}
-
 /* =========================================
    ACTION BUTTONS & LINKS
    ========================================= */
@@ -199,10 +138,9 @@
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: #1a1a1b;
-  border: 1px solid #d3d6da;
+  /* color: #1a1a1b; */
+  border: 1px solid #000000;
   padding: 0.5rem 0.8rem;
-  border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;

@@ -2,7 +2,8 @@
 
 import { toArray } from "drizzle-orm/mysql-core";
 import styles from "./ReplayBoard.module.css";
-import { Swords } from "lucide-react";
+import { ListRestart, ListRestartIcon, RefreshCw , Swords } from "lucide-react";
+import AppButton from "../Buttons/AppButton";
 
 // The true Wordle grading algorithm (handles duplicate letters correctly)
 function evaluateStaticGuess(guess: string, targetWord: string) {
@@ -91,6 +92,10 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
       <div className={styles.header}>
         <h2>Post-Game Analysis</h2>
         <p>Compare strategies and see how the duel unfolded.</p>
+        {/* <AppButton text="" startIcon={<RefreshCw  />} fixWidth styles={{
+          padding: "0.7rem",
+          borderRadius: "5rem"
+        }} /> */}
       </div>
 
       <div className={styles.boardsWrapper}>

@@ -4,7 +4,6 @@
   gap: 1.5rem;
   width: 95%;
   max-width: 600px;
-  margin-top: 5rem;
 }
 
 .controls {
@@ -97,6 +96,7 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 40ch;
+  border: 1px solid #c1c1c1;
 }
 
 .table th {
@@ -104,6 +104,7 @@
   padding: 0.75rem 1.5rem;
   font-size: 0.8rem;
   color: #787c7e;
+  background: #ebebeb;
   text-transform: uppercase;
   border-bottom: 1px solid #d3d6da;
 }
@@ -167,7 +168,7 @@
 
 /* Optional: Add a subtle inner shadow so users know they can scroll */
 .tableContainer::-webkit-scrollbar {
-  height: 6px;
+  height: 2px;
 }
 
 .tableContainer::-webkit-scrollbar-thumb {
@@ -192,5 +193,5 @@
 
 .header {
   margin: 2rem 0;
-  width: min(400px, 90%);
+  width: min(50ch, 90%);
 }

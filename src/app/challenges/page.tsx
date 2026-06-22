@@ -50,7 +50,7 @@ export default async function MyChallengesPage() {
       <main className={styles.container}>
         <div className={styles.header}>
           <h2>Members Only</h2>
-          <p>Please log in to view your duels.</p>
+          <p>Please log in to view your challenges.</p>
         </div>
       </main>
     );
@@ -98,6 +98,7 @@ export default async function MyChallengesPage() {
       id: duel.id,
       date: (duel.completedAt || duel.createdAt).toLocaleDateString(),
       opponent: opponentDisplay,
+      winStatus: duel.winnerId==='DRAW'?'DRAW':(duel.winnerId===userId?"WON":"LOST")
     };
   });
 

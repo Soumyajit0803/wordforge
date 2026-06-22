@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import styles from "./account.module.css"; // We'll create this next
-import AppButton from "@/components/Buttons/AppButton";
-import { GoogleIcon } from "../page";
 
 export default function AccountClient() {
   // Grab the "update" function from NextAuth to refresh the session locally
@@ -43,14 +41,7 @@ export default function AccountClient() {
       <main className={styles.container}>
         <div className={styles.header}>
           <h2>Members Only</h2>
-          <p>Please log in to proceed further.</p>
-          <AppButton
-            onClick={() =>
-              signIn("google", { callbackUrl: window.location.href })
-            }
-            text="sign in with google"
-            startIcon={<GoogleIcon />}
-          />
+          <p>Please log in/Sign up to proceed further.</p>
         </div>
       </main>
     );

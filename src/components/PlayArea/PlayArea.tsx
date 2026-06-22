@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import styles from "./PlayArea.module.css";
 import Popup from "@/components/Popup/Popup";
 import { CornerDownLeftIcon, Delete } from "lucide-react";
+import { redirect } from "next/navigation";
 
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
@@ -281,6 +282,11 @@ export default function PlayArea({
     challengeId,
   ]);
 
+  const onPopupClose = ()=> {
+    setIsModalOpen(false);
+    redirect(`/status/${challengeId}`)
+  }
+
   if (!isHydrated) {
     return <main className={styles.container}>Loading board...</main>;
   }
@@ -336,7 +342,7 @@ export default function PlayArea({
           gameStatus={gameStatus}
           targetWord={targetWord}
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={onPopupClose}
           chances={currentGuessIndex + 1}
           challengeId={challengeId}
         />

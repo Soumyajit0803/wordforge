@@ -12,7 +12,11 @@ type PlayerStat = {
   winStreak: number;
 };
 
-export default function LeaderboardClient({ players }: { players: PlayerStat[] }) {
+export default function LeaderboardClient({
+  players,
+}: {
+  players: PlayerStat[];
+}) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.tableContainer}>
@@ -21,18 +25,21 @@ export default function LeaderboardClient({ players }: { players: PlayerStat[] }
             <tr>
               <th>Rank</th>
               <th>Player</th>
-              <th>Avg IQ</th>
-              <th>High IQ</th>
-              <th>Win Rate</th>
-              <th>Win streak</th>
               <th>Total Games</th>
+              <th>Avg IQ</th>
+              <th>Max IQ</th>
+              <th>Win %</th>
+              <th>Win streak</th>
             </tr>
           </thead>
           <tbody>
             {players.map((player, index) => {
               // Calculate Win Rate on the fly
-              const winRate = ((player.totalWins / player.gamesPlayed) * 100).toFixed(0);
-              
+              const winRate = (
+                (player.totalWins / player.gamesPlayed) *
+                100
+              ).toFixed(0);
+
               // Add special styling for Top 3
               let rankClass = "";
               if (index === 0) rankClass = styles.rankGold;
@@ -42,26 +49,18 @@ export default function LeaderboardClient({ players }: { players: PlayerStat[] }
               return (
                 <tr key={player.id}>
                   <td className={`${styles.rankCol} ${rankClass}`}>
-                    #{index + 1}
+                    {index + 1}
                   </td>
-                  <td className={styles.nameCol}>
-                    {player.name}
-                  </td>
+                  <td className={styles.nameCol}>{player.name.split(" ")[0]}</td>
+                  <td className={styles.statCol}>{player.gamesPlayed}</td>
                   <td className={styles.highlightCol}>
                     {player.averageIQ.toFixed(1)}
                   </td>
                   <td className={styles.statCol}>
                     {player.highestIQ.toFixed(1)}
                   </td>
-                  <td className={styles.statCol}>
-                    {winRate}%
-                  </td>
-                  <td className={styles.statCol}>
-                    {player.winStreak}
-                  </td>
-                  <td className={styles.statCol}>
-                    {player.gamesPlayed}
-                  </td>
+                  <td className={styles.statCol}>{winRate}%</td>
+                  <td className={styles.statCol}>{player.winStreak}</td>
                 </tr>
               );
             })}

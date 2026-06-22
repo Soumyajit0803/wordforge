@@ -72,7 +72,7 @@ export default function ChallengeStats({
           </Link>
         </div>
       ) : /* State 2: Waiting for Opponent */
-      !bothFinished ? (
+      !hasOpponent ? (
         <div className={styles.waitingContainer}>
           <p className={styles.waitingText}>
             Waiting for an opponent... <br />

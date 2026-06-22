@@ -86,7 +86,6 @@ export default function CreateChallengeClient() {
     <main className={styles.container}>
       <h1>Create Challenge</h1>
       <p>Enter a word for your opponent to guess.</p>
-
       <input
         type="text"
         name="word"
@@ -96,6 +95,7 @@ export default function CreateChallengeClient() {
         className={styles.wordInput}
         placeholder="GHOST"
         disabled={!!shareLink} // boolean value of shareLink
+        autoFocus
       />
 
       {error && <p className={styles.errorText}>{error}</p>}
