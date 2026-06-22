@@ -93,24 +93,24 @@ export const challenges = pgTable('challenges', {
   completedAt: timestamp('completed_at'),
 });
 
-export const matchResults = pgTable('match_results', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(), // Internal ID, high performance
-  challengeId: uuid('challenge_id').references(() => challenges.id).notNull(),
+// export const matchResults = pgTable('match_results', {
+//   id: integer('id').primaryKey().generatedAlwaysAsIdentity(), // Internal ID, high performance
+//   challengeId: uuid('challenge_id').references(() => challenges.id).notNull(),
   
-  // Player Details for this specific match
-  playerId: text('player_id').references(() => users.id).notNull(), // Random for guests
-  playerName: text('player_name').notNull(), 
+//   // Player Details for this specific match
+//   playerId: text('player_id').references(() => users.id).notNull(), // Random for guests
+//   playerName: text('player_name').notNull(), 
   
-  // The Outcome
-  isWinner: boolean('is_winner').notNull().default(false), 
-  efficiencyScore: doublePrecision('efficiency_score').notNull(), 
-  guessesUsed: integer('guesses_used').notNull(), 
-  timeSeconds: integer('time_seconds'), // Optional
+//   // The Outcome
+//   isWinner: boolean('is_winner').notNull().default(false), 
+//   efficiencyScore: doublePrecision('efficiency_score').notNull(), 
+//   guessesUsed: integer('guesses_used').notNull(), 
+//   timeSeconds: integer('time_seconds'), // Optional
   
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => {
-  return {
-    // Index to quickly fetch a user's match history for their profile page
-    playerHistoryIdx: index('player_history_idx').on(table.playerId),
-  };
-});
+//   createdAt: timestamp('created_at').defaultNow().notNull(),
+// }, (table) => {
+//   return {
+//     // Index to quickly fetch a user's match history for their profile page
+//     playerHistoryIdx: index('player_history_idx').on(table.playerId),
+//   };
+// });

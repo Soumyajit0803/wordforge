@@ -16,21 +16,8 @@ type Player = {
   isGuest: boolean;
 };
 
-// const generateGuestName = () => {
-//   const adjectives = ["Sneaky", "Mighty", "Cosmic", "Quantum", "Hyper"];
-//   const nouns = ["Axolotl", "Godzilla", "Capybara", "Kraken", "Dragon"];
-//   const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-//   return `${random(adjectives)} ${random(nouns)}`;
-// };
-
 export function usePlayer() {
   const { data: session, status } = useSession();
-  // const guestName = generateGuestName();
-  // const newGuest = {
-  //   name: guestName,
-  //   id: crypto.randomUUID() + "-" + guestName,
-  //   isGuest: true,
-  // };
   const [player, setPlayer] = useState<Player | null>(null);
 
   useEffect(() => {

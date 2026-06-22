@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/db/index";
-import { challenges, userStats, matchResults, users } from "@/app/db/schema";
+import { challenges, userStats, users } from "@/app/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -153,6 +153,7 @@ export async function POST(request: Request) {
               totalWins: isWinner ? 1 : 0,
               averageEfficiencyScore: efficiencyScore,
               highestEfficiencyScore: efficiencyScore,
+              currentWinStreak: isWinner?1:0
             })
             .onConflictDoUpdate({
               target: userStats.userId,
@@ -164,17 +165,18 @@ export async function POST(request: Request) {
                 averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
                 highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
                 lastUpdated: sql`NOW()`,
+                currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${isWinner?1:0}`
               },
             });
 
-          await db.insert(matchResults).values({
-            challengeId,
-            playerId: currPlayerId,
-            playerName: CurrPlayerName,
-            isWinner: isWinner,
-            efficiencyScore: efficiencyScore,
-            guessesUsed: guesses.length,
-          });
+          // await db.insert(matchResults).values({
+          //   challengeId,
+          //   playerId: currPlayerId,
+          //   playerName: CurrPlayerName,
+          //   isWinner: isWinner,
+          //   efficiencyScore: efficiencyScore,
+          //   guessesUsed: guesses.length,
+          // });
         }
 
         // Opponent Stats Update
@@ -191,6 +193,7 @@ export async function POST(request: Request) {
                 totalWins: rivalIsWinner ? 1 : 0,
                 averageEfficiencyScore: rivalEfficiency,
                 highestEfficiencyScore: rivalEfficiency,
+                currentWinStreak: rivalIsWinner?1:0
               })
               .onConflictDoUpdate({
                 target: userStats.userId,
@@ -202,17 +205,18 @@ export async function POST(request: Request) {
                   averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${rivalEfficiency}) / (${userStats.totalGamesPlayed} + 1)`,
                   highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${rivalEfficiency})`,
                   lastUpdated: sql`NOW()`,
+                  currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${rivalIsWinner?1:0}`
                 },
               });
 
-            await db.insert(matchResults).values({
-              challengeId,
-              playerId: rivalId,
-              playerName: rivalName,
-              isWinner: rivalIsWinner,
-              efficiencyScore: rivalEfficiency,
-              guessesUsed: rivalGuesses.length,
-            });
+            // await db.insert(matchResults).values({
+            //   challengeId,
+            //   playerId: rivalId,
+            //   playerName: rivalName,
+            //   isWinner: rivalIsWinner,
+            //   efficiencyScore: rivalEfficiency,
+            //   guessesUsed: rivalGuesses.length,
+            // });
           } catch (e: any) {
             console.log("Opponent is a guest or DB error:", e.message);
           }

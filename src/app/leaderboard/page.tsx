@@ -1,5 +1,5 @@
 import { db } from "@/app/db/index";
-import { userStats } from "@/app/db/schema";
+import { users, userStats } from "@/app/db/schema";
 import { desc, gt } from "drizzle-orm";
 import styles from "./leaderboard.module.css";
 import { Trophy } from "lucide-react";
@@ -22,6 +22,7 @@ export default async function GlobalLeaderboardPage() {
       totalWins: userStats.totalWins,
       averageIQ: userStats.averageEfficiencyScore,
       highestIQ: userStats.highestEfficiencyScore,
+      winStreak: userStats.currentWinStreak
     })
     .from(userStats)
     .where(gt(userStats.totalGamesPlayed, 0)) // Must have played at least 1 game

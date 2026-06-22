@@ -9,6 +9,7 @@ type PlayerStat = {
   totalWins: number;
   averageIQ: number;
   highestIQ: number;
+  winStreak: number;
 };
 
 export default function LeaderboardClient({ players }: { players: PlayerStat[] }) {
@@ -23,6 +24,7 @@ export default function LeaderboardClient({ players }: { players: PlayerStat[] }
               <th>Avg IQ</th>
               <th>High IQ</th>
               <th>Win Rate</th>
+              <th>Win streak</th>
               <th>Total Games</th>
             </tr>
           </thead>
@@ -53,6 +55,9 @@ export default function LeaderboardClient({ players }: { players: PlayerStat[] }
                   </td>
                   <td className={styles.statCol}>
                     {winRate}%
+                  </td>
+                  <td className={styles.statCol}>
+                    {player.winStreak}
                   </td>
                   <td className={styles.statCol}>
                     {player.gamesPlayed}
