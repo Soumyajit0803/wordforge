@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import styles from "./create.module.css";
 import { Copy, Check } from "lucide-react"; 
 import AppButton from "@/components/Buttons/AppButton";
-import { GoogleIcon } from "@/app/page";
 
 export default function CreateChallengeClient() {
   const { status } = useSession();
@@ -85,8 +84,8 @@ export default function CreateChallengeClient() {
 
   return (
     <main className={styles.container}>
-      <h1>Set the Trap</h1>
-      <p>Pick a 5-letter word for your opponent to guess.</p>
+      <h1>Create Challenge</h1>
+      <p>Enter a word for your opponent to guess.</p>
 
       <input
         type="text"
@@ -96,7 +95,7 @@ export default function CreateChallengeClient() {
         onChange={(e) => setWord(e.target.value.toUpperCase())}
         className={styles.wordInput}
         placeholder="GHOST"
-        disabled={!!shareLink}
+        disabled={!!shareLink} // boolean value of shareLink
       />
 
       {error && <p className={styles.errorText}>{error}</p>}
@@ -111,7 +110,7 @@ export default function CreateChallengeClient() {
         </button>
       ) : (
         <div className={styles.shareBox}>
-          <p>Duel Ready! Send this link to your opponent:</p>
+          <p>Challenge Ready! Send this link to your opponent:</p>
           <div className={styles.linkWrapper}>
             <input type="text" readOnly value={shareLink} />
             <button
@@ -126,6 +125,7 @@ export default function CreateChallengeClient() {
               )}
             </button>
           </div>
+          <AppButton variant="primary" text={"Play Now"} routeURL={shareLink} />
         </div>
       )}
     </main>

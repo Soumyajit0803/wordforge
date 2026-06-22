@@ -4,7 +4,7 @@
   align-items: center;
   width: 100%;
   /* max-width: 500px; */
-  padding: 4rem 1rem;
+  padding-top: 3rem;
   font-family: inherit;
   text-align: center;
   margin-top: 2rem;
@@ -30,9 +30,8 @@
   padding: 1rem;
   margin-bottom: 1rem;
   border: 2px solid #d3d6da;
-  border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
   letter-spacing: 0.75rem; 
 }
 
@@ -61,11 +60,11 @@
   font-weight: bold;
   padding: 1rem 2rem;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
   width: 100%;
   max-width: 300px;
+  border: 0px solid #919191
 }
 
 /* .createBtn:hover:not(:disabled) {
@@ -79,6 +78,8 @@
 .createBtn:disabled {
   background-color: var(--blue-bg);
   cursor: not-allowed;
+  color: #919191;
+  border-width: 2px;
 }
 
 /* The Share Link UI */
@@ -87,10 +88,15 @@
   max-width: 400px;
   background-color: #f8f9fa;
   border: 1px solid #d3d6da;
-  border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1rem;
   animation: slideUp 0.3s ease-out forwards;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .shareBox p {
@@ -102,14 +108,15 @@
 .linkWrapper {
   display: flex;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .linkWrapper input {
-  flex: 1;
+  /* flex: 1; */
+  width: 100%;
   padding: 0.8rem;
   font-size: 0.9rem;
   border: 1px solid #d3d6da;
-  border-radius: 4px;
   background-color: #fff;
   color: #333;
   outline: none;
@@ -121,7 +128,6 @@
   background-color: #787c7e;
   color: white;
   border: none;
-  border-radius: 4px;
   padding: 0 1rem;
   cursor: pointer;
   display: flex;
@@ -151,7 +157,6 @@
   background-color: #787c7e;
   color: white;
   border: none;
-  border-radius: 4px;
   padding: 0 1rem;
   cursor: pointer;
   display: flex;
@@ -169,7 +174,6 @@
   background-color: #6aaa64; /* Wordle Correct Green */
   color: white;
   border: none;
-  border-radius: 4px;
   padding: 0 1rem;
   cursor: pointer;
   display: flex;

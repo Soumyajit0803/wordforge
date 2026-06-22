@@ -37,7 +37,7 @@ export const GoogleIcon = () => {
 export default function Home() {
   // const { data: session, status } = useSession();
   const { player, isLoading } = usePlayer();
-  console.log(player);
+  console.log("Current player:", player);
 
   if (isLoading) {
     return (

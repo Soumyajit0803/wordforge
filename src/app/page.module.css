@@ -151,3 +151,9 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@media only screen and (max-width: 480px) {
+  .wrapper {
+    border: none;
+  }
+}

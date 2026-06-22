@@ -100,9 +100,9 @@ const Navbar = () => {
             <CircleUser size={24} />
           )}
         </Link>
-        <div className={styles.iconButton} onClick={() => signOut({ callbackUrl: "/" })}>
+        {session?.user && <div className={styles.iconButton} onClick={() => signOut({ callbackUrl: "/" })}>
           <LogOutIcon size={25} />
-        </div>
+        </div>}
       </div>
       <div className={styles.forMobile}>
         <div className={styles.iconButton} onClick={() => setIsHelpOpen(true)}>

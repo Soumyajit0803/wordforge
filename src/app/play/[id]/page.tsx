@@ -75,14 +75,10 @@ export default async function ChallengePage({ params }: { params: { id: string }
   // WORKFLOW A: Get the opponent
   if (challenge.wordForA==="") {
     if (isCreator) {
-      return (
-        <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
-          <h2>Waiting for Opponent...</h2>
-          <div style={{ marginTop: "2rem", padding: "1rem", background: "#f0f0f0" }}>
-            <code>{`http://localhost:3000/play/${id}`}</code>
-          </div>
-        </div>
-      );
+      redirect(`/status/${id}`);
+      // return (
+      //   <Waiting id={id} />
+      // );
     } else {
       return <AcceptChallengeForm challengeId={id} challengerName={challengerFirstName} currentUserId={currentUserId} />;
     }

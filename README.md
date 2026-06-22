@@ -6,20 +6,13 @@
 - Leaderboard is a separate table which gets updated every time a challenge ends and both the players are registered users.
 - [PENDING] Prompt the guest to register on finishing every challenge to sign up, doing which the current challenge will become the first challenge of him as a registered user.
 
-## Challenge status:
-1. Guest to guest challenges working
-    - No need to have a way to view guest match results since they are anyways getting stored in database. We MUST delete all guest challenges within 24hrs.
-2. Account to Account challenges working
-3. Account to guest challenge working
-    - Made a middleware that will check for guest profile and if not existing, creates one.
-4. Guest to account: working
-
 ## Future important works:
 1. `Current streak` not working as usual. [FIXED]
 2. `status` variable needs to be scrapped from database, or its implementation needs a major fix [SCRAPPED]
 3. Need to fix the status page for those who are neither challenger nor opponent. [FIXED]
-4. Refactor large files to remove useless code
-5. Change the format of ID for guest users to remove any whitespaces.
+4. Change the format of ID for guest users to remove any whitespaces.[DONE]
+5. Review the IQ calculating logic
+> Refactor large files to remove useless code [TO BE DONE WHEN PROJECT READY FOR PROD]
 
 ## Future casual works:
 1. Provide a link from challenge creation page to go to status/[id] from where user can go to play area.

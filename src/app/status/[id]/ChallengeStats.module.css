@@ -1,0 +1,83 @@
+.wrapper {
+  padding: 5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statusBadge {
+  padding: 1rem;
+  width: fit-content;
+  color: #fff;
+  border-radius: 5rem;
+}
+
+/* Dynamic background colors for the badge */
+.badgeActive {
+  background: var(--green);
+}
+
+.badgeComplete {
+  background: var(--blue);
+}
+
+.actionContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.infoText {
+  text-align: center;
+  width: 70vw;
+}
+
+.playLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1a1a1b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.waitingContainer {
+  margin-top: 2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.waitingText {
+  margin-bottom: 1rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.linkGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.linkGroup input {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  border: 1px solid #d3d6da;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  /* Prevents the user from typing in the read-only box */
+  pointer-events: none;
+}

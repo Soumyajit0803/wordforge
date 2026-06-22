@@ -3,10 +3,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/app/db/index";
 import { challenges, users } from "@/app/db/schema";
 import { eq } from "drizzle-orm";
-import ReplayBoard from "@/components/ReplayBoard/ReplayBoard";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { cookies } from "next/headers";
+import ChallengeStats from "./ChallengeStats";
 
 export default async function StatusPage({
   params,
@@ -18,7 +16,7 @@ export default async function StatusPage({
   let currentUserId = session?.user?.id || null;
   let isGuest = false;
 
-  // 2. If no active session, check for the guest cookie
+  // 1. If no active session, check for the guest cookie
   if (!currentUserId) {
     const cookieStore = await cookies();
     const guestProfileStr = cookieStore.get("guest_profile")?.value;
@@ -34,6 +32,7 @@ export default async function StatusPage({
     }
   }
 
+  // 2. Fetch challenge data
   const challengeResult = await db
     .select({
       challenge: challenges,
@@ -53,19 +52,14 @@ export default async function StatusPage({
   }
 
   const { challenge, creatorName } = challengeResult[0];
-  let creatorFirstName;
-  if (creatorName) {
-    creatorFirstName = creatorName?.split(" ")[0];
-  } else {
-    creatorFirstName = challenge.creatorId.split("-")[0];
-  }
+  let creatorFirstName = creatorName ? creatorName.split(" ")[0] : challenge.creatorId.split("-")[0];
 
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;
 
   let opponent;
-  console.log("Am I a creator?:", isCreator);
 
+  // 3. Fetch opponent data
   if (challenge.opponentId) {
     [opponent] = await db
       .select({
@@ -74,124 +68,53 @@ export default async function StatusPage({
       .from(users)
       .where(eq(users.id, challenge.opponentId))
       .limit(1);
+      
     if (!opponent) {
-      console.log("Opponent ID in status", challenge.opponentId);
       opponent = { name: challenge.opponentId.split("-")[0] };
     }
   } else {
     opponent = { name: "TBD" };
   }
-  const myGuesses = isCreator
-    ? challenge.playerA_Guesses
-    : challenge.playerB_Guesses;
-  const myEfficiency =
-    (isCreator ? challenge.playerA_Efficiency : challenge.playerB_Efficiency) ||
-    0;
-  const opponentEfficiency =
-    (isCreator ? challenge.playerB_Efficiency : challenge.playerA_Efficiency) ||
-    0;
-  const opponentGuesses = isCreator
-    ? challenge.playerB_Guesses
-    : challenge.playerA_Guesses;
 
-  const meFinishedPlaying =
+  // 4. Calculate game states
+  const myGuesses = isCreator ? challenge.playerA_Guesses : challenge.playerB_Guesses;
+  const myEfficiency = (isCreator ? challenge.playerA_Efficiency : challenge.playerB_Efficiency) || 0;
+  const opponentEfficiency = (isCreator ? challenge.playerB_Efficiency : challenge.playerA_Efficiency) || 0;
+  const opponentGuesses = isCreator ? challenge.playerB_Guesses : challenge.playerA_Guesses;
+
+  const meFinishedPlaying = Boolean(
     myGuesses &&
     ((myGuesses.length === 6 && myGuesses[5].length === 5) ||
-      myGuesses.includes(isCreator ? challenge.wordForA : challenge.wordForB));
-  const opponentFinishedPlaying =
+      myGuesses.includes(isCreator ? challenge.wordForA : challenge.wordForB))
+  );
+
+  const opponentFinishedPlaying = Boolean(
     opponentGuesses &&
     ((opponentGuesses.length === 6 && opponentGuesses[5].length === 5) ||
-      opponentGuesses.includes(
-        isCreator ? challenge.wordForB : challenge.wordForA,
-      ));
+      opponentGuesses.includes(isCreator ? challenge.wordForB : challenge.wordForA))
+  );
 
   const bothFinished = meFinishedPlaying && opponentFinishedPlaying;
-  console.log(challenge);
 
+  const duelData = {
+    ...challenge,
+    creatorName: creatorFirstName,
+    opponentName: opponent?.name || "Guest Opponent",
+  };
+
+  // 5. Pass everything to the Client Component
   return (
-    <div
-      style={{
-        padding: "5rem 1rem",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          background: !bothFinished ? "var(--green)" : "var(--blue)",
-          padding: "1rem",
-          width: "fit-content",
-          color: "#fff",
-          borderRadius: "5rem",
-        }}
-      >
-        {!bothFinished ? "Active challenge!" : "Challenge completed!"}
-      </div>
-      <ReplayBoard
-        duelData={{
-          ...challenge,
-          creatorName: creatorFirstName,
-          opponentName: opponent?.name || "Guest Opponent",
-        }}
-        currentUserId={currentUserId}
-      />
-
-      {/* If the game is active but they HAVEN'T played yet, give them a button to go to the PlayArea */}
-      {!meFinishedPlaying && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            marginTop: "2rem",
-            gap: "1rem",
-          }}
-        >
-          <p style={{ textAlign: "center", width: "70vw" }}>
-            Seems like you have not yet finished your challenge yet. Complete
-            your challenge now!
-          </p>
-
-          <Link
-            href={`/play/${id}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#1a1a1b",
-              color: "white",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              textDecoration: "none",
-              fontWeight: "bold",
-            }}
-          >
-            Go to Play Area <ArrowRight size={18} />
-          </Link>
-        </div>
-      )}
-      {bothFinished && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            marginTop: "2rem",
-            gap: "1rem",
-          }}
-        >
-          {(isCreator || isOpponent) && <p style={{ textAlign: "center", width: "70vw" }}>
-            {myEfficiency === opponentEfficiency
-              ? "It's a tie! Both you and your opponent had the same efficiency score. Great minds think alike!"
-              : myEfficiency > opponentEfficiency
-                ? "Wow! You won! You had a higher efficiency score than your opponent."
-                : "Dang you lost! Your opponent had a higher efficiency score than you."}
-          </p>}
-        </div>
-      )}
-    </div>
+    <ChallengeStats
+      id={id}
+      currentUserId={currentUserId}
+      duelData={duelData}
+      bothFinished={bothFinished}
+      meFinishedPlaying={meFinishedPlaying}
+      hasOpponent={!!challenge.opponentId}
+      isCreator={isCreator}
+      isOpponent={isOpponent}
+      myEfficiency={myEfficiency}
+      opponentEfficiency={opponentEfficiency}
+    />
   );
 }
