@@ -68,7 +68,7 @@ export const userStats = pgTable('user_stats', {
   };
 });
 
-export const challengeStatusEnum = pgEnum('challenge_status', ['pending', 'active', 'completed', 'expired']);
+// export const challengeStatusEnum = pgEnum('challenge_status', ['pending', 'active', 'completed', 'expired']);
 
 export const challenges = pgTable('challenges', {
   id: uuid('id').primaryKey().defaultRandom(), // Secure URL ID
@@ -86,7 +86,7 @@ export const challenges = pgTable('challenges', {
   playerB_Efficiency: doublePrecision('player_b_efficiency').default(0),
 
   // State
-  status: challengeStatusEnum('status').default('pending').notNull(),
+  // status: challengeStatusEnum('status').default('pending').notNull(),
   winnerId: text('winner_id'), 
   
   createdAt: timestamp('created_at').defaultNow().notNull(),

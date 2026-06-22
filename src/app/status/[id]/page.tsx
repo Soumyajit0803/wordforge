@@ -57,10 +57,12 @@ export default async function StatusPage({
   if (creatorName) {
     creatorFirstName = creatorName?.split(" ")[0];
   } else {
-    creatorFirstName = challenge.creatorId.split("-").reverse()[0];
+    creatorFirstName = challenge.creatorId.split("-")[0];
   }
 
   const isCreator = currentUserId === challenge.creatorId;
+  const isOpponent = currentUserId === challenge.opponentId;
+
   let opponent;
   console.log("Am I a creator?:", isCreator);
 
@@ -74,7 +76,7 @@ export default async function StatusPage({
       .limit(1);
     if (!opponent) {
       console.log("Opponent ID in status", challenge.opponentId);
-      opponent = { name: challenge.opponentId.split("-").reverse()[0] };
+      opponent = { name: challenge.opponentId.split("-")[0] };
     }
   } else {
     opponent = { name: "TBD" };
@@ -181,13 +183,13 @@ export default async function StatusPage({
             gap: "1rem",
           }}
         >
-          <p style={{ textAlign: "center", width: "70vw" }}>
+          {(isCreator || isOpponent) && <p style={{ textAlign: "center", width: "70vw" }}>
             {myEfficiency === opponentEfficiency
               ? "It's a tie! Both you and your opponent had the same efficiency score. Great minds think alike!"
               : myEfficiency > opponentEfficiency
                 ? "Wow! You won! You had a higher efficiency score than your opponent."
                 : "Dang you lost! Your opponent had a higher efficiency score than you."}
-          </p>
+          </p>}
         </div>
       )}
     </div>

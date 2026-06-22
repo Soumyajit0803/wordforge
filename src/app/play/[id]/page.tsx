@@ -57,7 +57,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
   if(creatorName){
     challengerFirstName = creatorName?.split(" ")[0] || "Guest";
   } else {
-    challengerFirstName = challenge.creatorId.split("-").reverse()[0];
+    challengerFirstName = challenge.creatorId.split("-")[0];
   }
   var opponentFirstName = "Guest";
   if(challenge.opponentId) {
@@ -67,7 +67,7 @@ export default async function ChallengePage({ params }: { params: { id: string }
       .where(eq(users.id, challenge.opponentId))
       .limit(1);
 
-    opponentFirstName = opponentResult[0]?.opponentName.split(" ")[0] || challenge.opponentId.split("-").reverse()[0];
+    opponentFirstName = opponentResult[0]?.opponentName.split(" ")[0] || challenge.opponentId.split("-")[0];
   }
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;

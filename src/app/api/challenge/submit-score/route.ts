@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         try {
           const guestProfile = JSON.parse(guestProfileStr);
           currPlayerId = guestProfile.id;
-          CurrPlayerName = guestProfile.id.split("-").reverse()[0];
+          CurrPlayerName = guestProfile.id.split("-")[0];
           isGuest = true;
         } catch (e) {
           console.error("Failed to parse guest cookie", e);

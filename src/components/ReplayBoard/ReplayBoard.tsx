@@ -78,6 +78,7 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
 // The Main Export
 export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
+  const isOpponent = currentUserId === duelData.opponentId;
   // Determine who won for highlighting
   const creatorWon = duelData.winnerId ? (duelData.winnerId === duelData.creatorId) : (duelData.playerA_Efficiency > duelData.playerB_Efficiency);
   const matchDrawn = duelData.winnerId === "DRAW" || (duelData.playerA_Efficiency === duelData.playerB_Efficiency);
@@ -95,7 +96,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
       <div className={styles.boardsWrapper}>
 
         <MiniBoard
-          title={isCreator ? "Your Board" : "Opponent's Board"}
+          title={isCreator ? "Your Board" : (isOpponent?"Opponent's Board": "Player A")}
           playerName={duelData.creatorName || "Guest Challenger"}
           targetWord={duelData.wordForA} // Creator guesses wordForA
           guesses={duelData.playerA_Guesses}
@@ -108,7 +109,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
         </div>
 
         <MiniBoard
-          title={!isCreator ? "Your Board" : "Opponent's Board"}
+          title={isOpponent ? "Your Board" :(isCreator?"Opponent's Board": "Player B")}
           playerName={duelData.opponentName || "Guest Opponent"}
           targetWord={duelData.wordForB} // Opponent guesses wordForB
           guesses={duelData.playerB_Guesses}

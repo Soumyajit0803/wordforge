@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import guestNames from "@/guestNames.json"
 
 // Helper to generate names on the edge
 const generateGuestName = () => {
-  const adjectives = ["Sneaky", "Mighty", "Cosmic", "Quantum", "Hyper"];
-  const nouns = ["Axolotl", "Godzilla", "Capybara", "Kraken", "Dragon"];
   const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-  return `${random(adjectives)} ${random(nouns)}`;
+  return random(guestNames[1]) + random(guestNames[0]);
 };
 
 export function middleware(request: NextRequest) {
@@ -25,7 +24,7 @@ export function middleware(request: NextRequest) {
   if (!hasSession && !hasGuestProfile) {
     const guestName = generateGuestName();
     const newGuest = {
-      id: crypto.randomUUID() + "-" + guestName,
+      id: guestName + "-" + crypto.randomUUID(),
       name: guestName,
       isGuest: true,
     };

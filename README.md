@@ -16,8 +16,8 @@
 
 ## Future important works:
 1. `Current streak` not working as usual. [FIXED]
-2. `status` variable needs to be scrapped from database, or its implementation needs a major fix 
-3. Need to fix the status page for those who are neither challenger nor opponent.
+2. `status` variable needs to be scrapped from database, or its implementation needs a major fix [SCRAPPED]
+3. Need to fix the status page for those who are neither challenger nor opponent. [FIXED]
 4. Refactor large files to remove useless code
 5. Change the format of ID for guest users to remove any whitespaces.
 
