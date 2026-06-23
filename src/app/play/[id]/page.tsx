@@ -76,9 +76,6 @@ export default async function ChallengePage({ params }: { params: { id: string }
   if (challenge.wordForA==="") {
     if (isCreator) {
       redirect(`/status/${id}`);
-      // return (
-      //   <Waiting id={id} />
-      // );
     } else {
       return <AcceptChallengeForm challengeId={id} challengerName={challengerFirstName} currentUserId={currentUserId} />;
     }

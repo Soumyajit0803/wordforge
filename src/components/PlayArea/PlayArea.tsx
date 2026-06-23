@@ -115,6 +115,7 @@ export default function PlayArea({
           isCreator, // Tells the backend to update playerA_Guesses or playerB_Guesses
           guesses: playedGuesses,
           targetWord,
+          isMigration: false
         }),
       });
 
@@ -235,7 +236,7 @@ export default function PlayArea({
       } else if (currentGuess.length < WORD_LENGTH && /^[a-z]$/i.test(key)) {
         setGuesses((prev) => {
           const next = [...prev];
-          next[currentGuessIndex] = currentGuess + key.toLowerCase();
+          next[currentGuessIndex] = currentGuess + key.toUpperCase();
           return next;
         });
       }
@@ -345,6 +346,8 @@ export default function PlayArea({
           onClose={onPopupClose}
           chances={currentGuessIndex + 1}
           challengeId={challengeId}
+          isCreator = {isCreator}
+          playedGuesses = {guesses}
         />
       )}
 

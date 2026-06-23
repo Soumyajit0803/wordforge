@@ -35,7 +35,12 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     const body = await request.json();
-    const { challengeId, isCreator, guesses, targetWord } = body;
+
+    console.log("\n\nBODY RECEIVED:");
+    console.log(body);
+    console.log("\n\n\n");
+
+    const { challengeId, isCreator, guesses, targetWord, isMigration } = body;
 
     if (!challengeId || !guesses) {
       return NextResponse.json(
@@ -46,7 +51,7 @@ export async function POST(request: Request) {
 
     let currPlayerId: string | undefined = session?.user?.id;
     let isGuest: boolean = false;
-    let CurrPlayerName: string = session?.user?.name || "";
+    let currPlayerName: string = session?.user?.name || "";
 
     // 1. Resolve User Identity
     if (!currPlayerId) {
@@ -57,7 +62,7 @@ export async function POST(request: Request) {
         try {
           const guestProfile = JSON.parse(guestProfileStr);
           currPlayerId = guestProfile.id;
-          CurrPlayerName = guestProfile.id.split("-")[0];
+          currPlayerName = guestProfile.id.split("-")[0];
           isGuest = true;
         } catch (e) {
           console.error("Failed to parse guest cookie", e);
@@ -73,13 +78,23 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!duel) throw new Error("Duel not found.");
-
-    // 3. Calculate this player's IQ
+    
     const efficiencyScore = calculateEfficiencyIQ(guesses, targetWord);
-
     const updatePayload: any = isCreator
       ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
       : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };
+
+    if (isMigration && currPlayerId) {
+      if (isCreator) updatePayload.creatorId = currPlayerId;
+      else updatePayload.opponentId = currPlayerId;
+      console.log("SETTING UP NEW ID");
+      console.log(updatePayload);
+    } else {
+      console.log("Migration status:", isMigration);
+      console.log("currPlayerId:", currPlayerId);
+    }
+
+    // 3. Calculate this player's IQ
 
     // 4. CHECK FOR GAME OVER
     const isCurrentPlayerDone =
@@ -97,7 +112,7 @@ export async function POST(request: Request) {
     const isGameOver = isCurrentPlayerDone && isRivalDone;
 
     // Grab rival's efficiency from the database (no need to recalculate!)
-    let rivalEfficiency : number = isCreator
+    let rivalEfficiency: number = isCreator
       ? duel.playerB_Efficiency!
       : duel.playerA_Efficiency!;
     let winnerId: string | null = null;
@@ -148,12 +163,12 @@ export async function POST(request: Request) {
             .insert(userStats)
             .values({
               userId: currPlayerId,
-              playerName: CurrPlayerName,
+              playerName: currPlayerName,
               totalGamesPlayed: 1,
               totalWins: isWinner ? 1 : 0,
               averageEfficiencyScore: efficiencyScore,
               highestEfficiencyScore: efficiencyScore,
-              currentWinStreak: isWinner?1:0
+              currentWinStreak: isWinner ? 1 : 0,
             })
             .onConflictDoUpdate({
               target: userStats.userId,
@@ -165,7 +180,7 @@ export async function POST(request: Request) {
                 averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${efficiencyScore}) / (${userStats.totalGamesPlayed} + 1)`,
                 highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${efficiencyScore})`,
                 lastUpdated: sql`NOW()`,
-                currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${isWinner?1:0}`
+                currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${isWinner ? 1 : 0}`,
               },
             });
 
@@ -193,7 +208,7 @@ export async function POST(request: Request) {
                 totalWins: rivalIsWinner ? 1 : 0,
                 averageEfficiencyScore: rivalEfficiency,
                 highestEfficiencyScore: rivalEfficiency,
-                currentWinStreak: rivalIsWinner?1:0
+                currentWinStreak: rivalIsWinner ? 1 : 0,
               })
               .onConflictDoUpdate({
                 target: userStats.userId,
@@ -205,7 +220,7 @@ export async function POST(request: Request) {
                   averageEfficiencyScore: sql`((${userStats.averageEfficiencyScore} * ${userStats.totalGamesPlayed}) + ${rivalEfficiency}) / (${userStats.totalGamesPlayed} + 1)`,
                   highestEfficiencyScore: sql`GREATEST(${userStats.highestEfficiencyScore}, ${rivalEfficiency})`,
                   lastUpdated: sql`NOW()`,
-                  currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${rivalIsWinner?1:0}`
+                  currentWinStreak: sql`(${userStats.currentWinStreak} + 1)*${rivalIsWinner ? 1 : 0}`,
                 },
               });
 

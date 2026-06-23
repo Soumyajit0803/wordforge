@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, Copy } from "lucide-react";
 import ReplayBoard from "@/components/ReplayBoard/ReplayBoard";
@@ -33,8 +33,51 @@ export default function ChallengeStats({
   opponentEfficiency,
 }: ChallengeStatsProps) {
   const [copied, setCopied] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const url = `${baseUrl}/play/${id}`;
+
+
+  useEffect(() => {
+    const pendingDataRaw = localStorage.getItem("pending_game_score");
+
+    if (pendingDataRaw) {
+      setIsSyncing(true);
+
+      const pendingData = JSON.parse(pendingDataRaw);
+      console.log("Attempting migration");
+      console.log("Migration available");
+
+
+      // 2. Post the data to the backend
+      fetch("/api/challenge/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...pendingData,
+          isMigration: true,
+        }),
+      })
+        .then((res) => {
+          if (res.ok) {
+            // 3. Clear storage so a page refresh doesn't trigger a duplicate API call
+            localStorage.removeItem("pending_game_score");
+            console.log("Score successfully attached to your new account!");
+          }
+        })
+        .catch((err) => console.error("Failed to sync score:", err))
+        .finally(() => {
+          setIsSyncing(false);
+          window.location.reload();
+        });
+    } else {
+      console.log(currentUserId);
+      console.log(duelData);
+      console.log("isCreator: ", isCreator);
+      console.log("isOpponent: ", isOpponent);
+    }
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -45,6 +88,10 @@ export default function ChallengeStats({
       console.error("Failed to copy link", err);
     }
   };
+
+  if (isSyncing) {
+    return <div style={{ marginTop: "4rem" }}>Preparing your account...</div>;
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -92,7 +139,7 @@ export default function ChallengeStats({
               onClick={handleCopy}
               fixWidth
               styles={{
-                padding: "0.7rem"
+                padding: "0.7rem",
               }}
             />
           </div>

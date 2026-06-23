@@ -14,9 +14,12 @@ interface PopupProps {
   onClose: () => void;
   chances: number;
   challengeId: string;
+  isCreator: boolean;
+  playedGuesses: string[];
 }
 
-const askToLogin = "Log in to save your score and see where you stand in the ForgeWord arena!";
+const askToLogin =
+  "Log in to save your score and see where you stand in the ForgeWord arena!";
 
 export default function Popup({
   gameStatus,
@@ -25,14 +28,26 @@ export default function Popup({
   onClose,
   chances,
   challengeId,
+  isCreator,
+  playedGuesses,
 }: PopupProps) {
   const { player } = usePlayer();
 
   const isWon = gameStatus === "won";
 
-  const handleLoginClick = () => {
-    // Trigger NextAuth sign-in and redirect exactly back to this challenge link
-    signIn("google", { callbackUrl: window.location.href });
+  const handleLoginClick = async () => {
+    const pendingMatchData = {
+      challengeId,
+      isCreator,
+      guesses: playedGuesses,
+      targetWord,
+    };
+    localStorage.setItem(
+      "pending_game_score",
+      JSON.stringify(pendingMatchData),
+    );
+    const statusPageURL = `${window.location.origin}/status/${challengeId}`;
+    signIn("google", { callbackUrl: statusPageURL });
   };
 
   if (!isOpen || !player) return null;
@@ -43,19 +58,19 @@ export default function Popup({
         <div onClick={onClose} className={styles.closeButton}>
           <X size={15} />
         </div>
-        
+
         <div className={styles.statusIcon}>
           {isWon ? <Trophy size={48} /> : <Frown size={48} />}
         </div>
 
         <h2>{isWon ? "Splendid!" : "Next Time!"}</h2>
-        
+
         {!isWon && (
           <p>
             The word was: <strong>{targetWord.toUpperCase()}</strong>
           </p>
         )}
-        
+
         <p>
           You {isWon ? `got it in ${chances} guesses!` : "ran out of guesses."}
         </p>
@@ -66,17 +81,14 @@ export default function Popup({
         {/* Dynamic Action Area */}
         <div className={styles.buttonGroup}>
           {player.isGuest ? (
-            <AppButton 
-              onClick={handleLoginClick} 
-              text="Log in with Google" 
-              startIcon={<GoogleIcon />} 
+            <AppButton
+              onClick={handleLoginClick}
+              text="Log in with Google"
+              startIcon={<GoogleIcon />}
             />
           ) : (
             // Since challenges are strictly 1v1 now, routing them to their Duel History is best
-            <AppButton 
-              routeURL="/challenges" 
-              text="View Duel History" 
-            />
+            <AppButton routeURL="/challenges" text="View Duel History" />
           )}
         </div>
       </div>

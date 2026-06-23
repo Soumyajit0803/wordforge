@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import styles from "./create.module.css";
-import { Copy, Check } from "lucide-react"; 
+import { Copy, Check, RefreshCw } from "lucide-react"; 
 import AppButton from "@/components/Buttons/AppButton";
 
 export default function CreateChallengeClient() {
@@ -77,7 +77,18 @@ export default function CreateChallengeClient() {
   if (status === "loading") {
     return (
       <main className={styles.container}>
-        <p>Loading...</p>
+        <span style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.5rem",
+        padding: "1rem",
+        border: "1px solid #a5a5a5"
+
+      }}>
+        <RefreshCw />
+        Loading...
+      </span>
       </main>
     );
   }

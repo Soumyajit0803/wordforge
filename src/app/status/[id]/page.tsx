@@ -94,6 +94,8 @@ export default async function StatusPage({
       opponentGuesses.includes(isCreator ? challenge.wordForB : challenge.wordForA))
   );
 
+  console.log("Play status: ", meFinishedPlaying, opponentFinishedPlaying)
+
   const bothFinished = meFinishedPlaying && opponentFinishedPlaying;
 
   const duelData = {
