@@ -4,10 +4,14 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import styles from "./create.module.css";
-import { Copy, Check, RefreshCw } from "lucide-react"; 
+import { Copy, Check, RefreshCw } from "lucide-react";
 import AppButton from "@/components/Buttons/AppButton";
 
-export default function CreateChallengeClient() {
+export default function CreateChallengeClient({
+  challengerId,
+}: {
+  challengerId: string | null;
+}) {
   const { status } = useSession();
 
   const [word, setWord] = useState("");
@@ -16,6 +20,7 @@ export default function CreateChallengeClient() {
   const [shareLink, setShareLink] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const isGuest = (char: string) => char >= "A" && char <= "Z";
 
   useEffect(() => {
     fetch("/words.json")
@@ -77,18 +82,19 @@ export default function CreateChallengeClient() {
   if (status === "loading") {
     return (
       <main className={styles.container}>
-        <span style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "0.5rem",
-        padding: "1rem",
-        border: "1px solid #a5a5a5"
-
-      }}>
-        <RefreshCw />
-        Loading...
-      </span>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            padding: "1rem",
+            border: "1px solid #a5a5a5",
+          }}
+        >
+          <RefreshCw />
+          Loading...
+        </span>
       </main>
     );
   }
@@ -97,6 +103,15 @@ export default function CreateChallengeClient() {
     <main className={styles.container}>
       <h1>Create Challenge</h1>
       <p>Enter a word for your opponent to guess.</p>
+      {challengerId && isGuest(challengerId[0]) && (
+        <p style = {{
+          background: "#ededed",
+          padding: "0.5rem",
+          border: "1px solid #bcbcbc"
+        }}>
+          Guest mode active. You play as <b>{challengerId.split("-")[0]}</b>
+
+        </p>)}
       <input
         type="text"
         name="word"
