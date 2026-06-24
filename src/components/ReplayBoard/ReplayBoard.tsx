@@ -2,8 +2,15 @@
 
 import { toArray } from "drizzle-orm/mysql-core";
 import styles from "./ReplayBoard.module.css";
-import { ListRestart, ListRestartIcon, RefreshCw , Swords } from "lucide-react";
+import {
+  Info,
+  ListRestart,
+  ListRestartIcon,
+  RefreshCw,
+  Swords,
+} from "lucide-react";
 import AppButton from "../Buttons/AppButton";
+import { isGuest } from "@/app/challenges/create/CreateChallengeClient";
 
 // The true Wordle grading algorithm (handles duplicate letters correctly)
 function evaluateStaticGuess(guess: string, targetWord: string) {
@@ -31,10 +38,25 @@ function evaluateStaticGuess(guess: string, targetWord: string) {
 }
 
 // A static, non-interactive 5x6 grid
-function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any) {
-  var safeGuesses: string[] = (guesses.length===6 || guesses.includes(targetWord)) ? guesses : [ ...Array(6).fill(" ")];
-  safeGuesses = safeGuesses.concat([...Array(6 - safeGuesses.length).fill(" ")]);
-  const revealWord = guesses?.includes(targetWord) || (guesses && guesses[5]?.length === 5) || title.includes("Opponent");
+function MiniBoard({
+  title,
+  playerName,
+  targetWord,
+  guesses,
+  iq,
+  isWinner,
+}: any) {
+  var safeGuesses: string[] =
+    guesses.length === 6 || guesses.includes(targetWord)
+      ? guesses
+      : [...Array(6).fill(" ")];
+  safeGuesses = safeGuesses.concat([
+    ...Array(6 - safeGuesses.length).fill(" "),
+  ]);
+  const revealWord =
+    guesses?.includes(targetWord) ||
+    (guesses && guesses[5]?.length === 5) ||
+    title.includes("Opponent");
 
   return (
     <div className={`${styles.boardCard} ${isWinner ? styles.winnerCard : ""}`}>
@@ -42,8 +64,14 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
         <h3>{title}</h3>
         <p className={styles.playerName}>{playerName}</p>
         <div className={styles.stats}>
-          {revealWord && <span>Word: <strong>{targetWord?.toUpperCase()}</strong></span>}
-          <span>IQ: <strong>{iq ? iq.toFixed(1) : 0}</strong></span>
+          {revealWord && (
+            <span>
+              Word: <strong>{targetWord?.toUpperCase()}</strong>
+            </span>
+          )}
+          <span>
+            IQ: <strong>{iq ? iq.toFixed(1) : 0}</strong>
+          </span>
         </div>
       </div>
 
@@ -54,11 +82,17 @@ function MiniBoard({ title, playerName, targetWord, guesses, iq, isWinner }: any
           const evaluations = evaluateStaticGuess(guessModifier, targetWord);
           return (
             <div key={rowIndex} className={styles.row}>
-              {guessModifier.toUpperCase().split("").map((char: string, colIndex: number) => (
-                <div key={colIndex} className={`${char===' ' && styles.empty} ${styles.cell} ${char!==' ' && styles[evaluations[colIndex]]}`}>
-                  {char}
-                </div>
-              ))}
+              {guessModifier
+                .toUpperCase()
+                .split("")
+                .map((char: string, colIndex: number) => (
+                  <div
+                    key={colIndex}
+                    className={`${char === " " && styles.empty} ${styles.cell} ${char !== " " && styles[evaluations[colIndex]]}`}
+                  >
+                    {char}
+                  </div>
+                ))}
             </div>
           );
         })}
@@ -81,8 +115,12 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
   const isOpponent = currentUserId === duelData.opponentId;
   // Determine who won for highlighting
-  const creatorWon = duelData.winnerId ? (duelData.winnerId === duelData.creatorId) : (duelData.playerA_Efficiency > duelData.playerB_Efficiency);
-  const matchDrawn = duelData.winnerId === "DRAW" || (duelData.playerA_Efficiency === duelData.playerB_Efficiency);
+  const creatorWon = duelData.winnerId
+    ? duelData.winnerId === duelData.creatorId
+    : duelData.playerA_Efficiency > duelData.playerB_Efficiency;
+  const matchDrawn =
+    duelData.winnerId === "DRAW" ||
+    duelData.playerA_Efficiency === duelData.playerB_Efficiency;
 
   console.log("Match drawn status:", matchDrawn);
   console.log(duelData);
@@ -91,7 +129,10 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Post-Game Analysis</h2>
-        <p>Compare strategies and see how the duel unfolded.</p>
+        <p>
+          Compare strategies and see how the duel unfolded. Refresh page for
+          updates
+        </p>
         {/* <AppButton text="" startIcon={<RefreshCw  />} fixWidth styles={{
           padding: "0.7rem",
           borderRadius: "5rem"
@@ -99,14 +140,22 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
       </div>
 
       <div className={styles.boardsWrapper}>
-
         <MiniBoard
-          title={isCreator ? "Your Board" : (isOpponent?"Opponent's Board": "Player A")}
-          playerName={duelData.creatorName || "Guest Challenger"}
+          title={
+            isCreator
+              ? "Your Board"
+              : isOpponent
+                ? "Opponent's Board"
+                : "Player A"
+          }
+          playerName={
+            (isGuest(duelData.creatorId) ? "Guest " : "") +
+              duelData.creatorName || "Guest Challenger"
+          }
           targetWord={duelData.wordForA} // Creator guesses wordForA
           guesses={duelData.playerA_Guesses}
           iq={duelData.playerA_Efficiency}
-          isWinner={matchDrawn?false:creatorWon}
+          isWinner={matchDrawn ? false : creatorWon}
         />
 
         <div className={styles.vsBadge}>
@@ -114,14 +163,22 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
         </div>
 
         <MiniBoard
-          title={isOpponent ? "Your Board" :(isCreator?"Opponent's Board": "Player B")}
-          playerName={duelData.opponentName || "Guest Opponent"}
+          title={
+            isOpponent
+              ? "Your Board"
+              : isCreator
+                ? "Opponent's Board"
+                : "Player B"
+          }
+          playerName={
+            (isGuest(duelData.opponentId) ? "Guest " : "") +
+              duelData.opponentName || "Guest Opponent"
+          }
           targetWord={duelData.wordForB} // Opponent guesses wordForB
           guesses={duelData.playerB_Guesses}
           iq={duelData.playerB_Efficiency}
-          isWinner={matchDrawn?false:!creatorWon}
+          isWinner={matchDrawn ? false : !creatorWon}
         />
-
       </div>
     </div>
   );

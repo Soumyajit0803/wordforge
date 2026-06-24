@@ -53,9 +53,9 @@ export default function Home() {
       <div className={styles.wrapper}>
         {!player?.user && (
           <p>
-            Love wordle? Try ForgeWord, a competitive twist on the classic
+            Love wordle? Try <b>ForgeWord</b>, a competitive twist on the classic
             wordle game. Challenge friends to guess your secret word in 6
-            attempts, while you try to guess theirs. Sign up to save progress
+            attempts, while you try to guess theirs. The one who guesses in a more optimal way wins! <br />Sign up to save progress
             and climb the global leaderboard!
           </p>
         )}
@@ -64,7 +64,7 @@ export default function Home() {
         <div className={styles.content}>
           {!player?.user ? (
             <>
-              <p className={styles.promptText}>Log in to play.</p>
+              <p className={styles.promptText}>Guest <b>{player?.name}</b></p>
               <AppButton
                 onClick={() => signIn("google")}
                 text="Continue with Google"
@@ -74,7 +74,7 @@ export default function Home() {
           ) : (
             <>
               <div className={styles.welcomeBox}>
-                <p className={styles.promptText}>Welcome back,</p>
+                <p style={{margin: "0.5rem 0"}}>Welcome back</p>
                 {player.user.image && (
                   <img
                     src={player.user.image}

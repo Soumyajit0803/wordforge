@@ -15,13 +15,12 @@
 .modal, .helpModal {
   background: white;
   padding: 2.5rem;
-  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transform: scale(1);
   animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   width: min(25rem, 90%);
+  border: 1px solid #000
 }
 
 .helpModal {

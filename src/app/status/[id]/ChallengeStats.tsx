@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy, Info } from "lucide-react";
 import ReplayBoard from "@/components/ReplayBoard/ReplayBoard";
 import AppButton from "@/components/Buttons/AppButton";
 import styles from "./ChallengeStats.module.css";
+import { isGuest } from "@/app/challenges/create/CreateChallengeClient";
 
 interface ChallengeStatsProps {
   id: string;
@@ -38,7 +39,6 @@ export default function ChallengeStats({
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const url = `${baseUrl}/play/${id}`;
 
-
   useEffect(() => {
     const pendingDataRaw = localStorage.getItem("pending_game_score");
 
@@ -48,7 +48,6 @@ export default function ChallengeStats({
       const pendingData = JSON.parse(pendingDataRaw);
       console.log("Attempting migration");
       console.log("Migration available");
-
 
       // 2. Post the data to the backend
       fetch("/api/challenge/submit-score", {
@@ -157,6 +156,24 @@ export default function ChallengeStats({
                 : "Dang you lost! Your opponent had a higher efficiency score than you."}
           </p>
         </div>
+      )}
+      {(isGuest(duelData.creatorId) || isGuest(duelData.opponentId)) && (
+        <p
+          style={{
+            background: "#ededed",
+            padding: "0.5rem",
+            border: "1px solid #bcbcbc",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            margin: "0.5rem 0",
+            fontSize: "0.8rem"
+          }}
+        >
+          <Info size={20} />
+          Challenge is in guest mode. It will not be saved in wordforge leaderboard.
+        </p>
       )}
     </div>
   );

@@ -98,7 +98,7 @@ export default async function MyChallengesPage() {
       id: duel.id,
       date: (duel.completedAt || duel.createdAt).toLocaleDateString(),
       opponent: opponentDisplay,
-      winStatus: duel.winnerId==='DRAW'?'DRAW':(duel.winnerId===userId?"WON":"LOST")
+      winStatus: (duel.winnerId==='DRAW' || opponentDisplay==='TBD')?'DRAW':(duel.winnerId===userId?"WON":"LOST")
     };
   });
 

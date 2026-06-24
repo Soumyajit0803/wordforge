@@ -60,7 +60,7 @@ export default function Popup({
         </div>
 
         <div className={styles.statusIcon}>
-          {isWon ? <Trophy size={48} /> : <Frown size={48} />}
+          {isWon ? <Trophy size={48} color="gold" /> : <Frown size={48} />}
         </div>
 
         <h2>{isWon ? "Splendid!" : "Next Time!"}</h2>
@@ -72,7 +72,7 @@ export default function Popup({
         )}
 
         <p>
-          You {isWon ? `got it in ${chances} guesses!` : "ran out of guesses."}
+          You {isWon ? `got it in ${chances} ${chances>1?"guesses":"guess"}!` : "ran out of guesses."}
         </p>
 
         {/* If they are a guest, politely suggest they log in */}
@@ -80,15 +80,12 @@ export default function Popup({
 
         {/* Dynamic Action Area */}
         <div className={styles.buttonGroup}>
-          {player.isGuest ? (
+          {player.isGuest && (
             <AppButton
               onClick={handleLoginClick}
               text="Log in with Google"
               startIcon={<GoogleIcon />}
             />
-          ) : (
-            // Since challenges are strictly 1v1 now, routing them to their Duel History is best
-            <AppButton routeURL="/challenges" text="View Duel History" />
           )}
         </div>
       </div>

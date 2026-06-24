@@ -11,7 +11,9 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --foreground-secondary: rgba(100, 100, 100, 0.75);
+  --border: rgb(161, 161, 161);
 
   /* Light Mode Colors */
   --bg-primary: #ffffff;

@@ -13,6 +13,7 @@ type User = {
 
 type Player = {
   user: User;
+  name?:string;
   isGuest: boolean;
 };
 

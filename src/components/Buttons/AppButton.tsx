@@ -7,7 +7,9 @@ const AppButton = ({
   startIcon,
   routeURL,
   fixWidth=false,
+  disabled=false,
   variant='normal',
+  submitType=false,
   styles
 }: {
   onClick?: () => void;
@@ -15,21 +17,26 @@ const AppButton = ({
   startIcon?: React.ReactNode;
   routeURL?: string;
   fixWidth?: boolean;
+  disabled?: boolean;
   variant?: "primary" | "danger" | "normal";
+  submitType?: boolean,
   styles?: React.CSSProperties;
 }) => {
-  const bgcol = variant === "danger" ? "#EA4335" : variant === "primary" ? "var(--blue)" : "transparent";
+  const bgcol = variant === "danger" ? "#EA4335" : variant === "primary" ? "var(--foreground)" : "transparent";
   if(!routeURL)return (
     <button
       onClick={onClick}
+      disabled={disabled}
+      type={submitType?"submit":"button"}
       style={{
         color: variant !== "normal" ? "#fff" : "var(--foreground)",
+        opacity: disabled?0.5:1,
         background: bgcol,
         border: variant==='normal'?"1px double var(--foreground)":"none",
         padding: "1rem",
         fontSize: "1rem",
         fontWeight: "bold",
-        cursor: "pointer",
+        cursor: disabled?"not-allowed":"pointer",
         width: fixWidth?"min-content":"100%",
         whiteSpace: "nowrap",
         textTransform: "uppercase",
@@ -56,7 +63,7 @@ const AppButton = ({
         padding: "1rem",
         fontSize: "1rem",
         fontWeight: "bold",
-        cursor: "pointer",
+        cursor: disabled?"not-allowed":"pointer",
         width: fixWidth ? "min-content" : "100%",
         whiteSpace: "nowrap",
         textTransform: "uppercase",

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import styles from "./account.module.css"; // We'll create this next
+import AppButton from "@/components/Buttons/AppButton";
 
 export default function AccountClient() {
   // Grab the "update" function from NextAuth to refresh the session locally
@@ -127,13 +128,14 @@ export default function AccountClient() {
           />
         </div>
 
-        <button
+        {/* <button
           type="submit"
           disabled={isSaving || !name.trim()}
           className={styles.primaryBtn}
         >
           {isSaving ? "Saving..." : "Save Changes"}
-        </button>
+        </button> */}
+        <AppButton variant="primary" submitType disabled={isSaving || !name.trim()} text={isSaving ? "Saving..." : "Save Changes"} />
 
         {message && (
           <p

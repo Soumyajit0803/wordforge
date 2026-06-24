@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import styles from "./create.module.css";
-import { Copy, Check, RefreshCw } from "lucide-react";
+import { Copy, Check, RefreshCw, Info } from "lucide-react";
 import AppButton from "@/components/Buttons/AppButton";
+
+export const isGuest = (char: string) => char >= "A" && char <= "Z";
+
 
 export default function CreateChallengeClient({
   challengerId,
@@ -20,7 +23,6 @@ export default function CreateChallengeClient({
   const [shareLink, setShareLink] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const isGuest = (char: string) => char >= "A" && char <= "Z";
 
   useEffect(() => {
     fetch("/words.json")
@@ -104,56 +106,100 @@ export default function CreateChallengeClient({
       <h1>Create Challenge</h1>
       <p>Enter a word for your opponent to guess.</p>
       {challengerId && isGuest(challengerId[0]) && (
-        <p style = {{
-          background: "#ededed",
-          padding: "0.5rem",
-          border: "1px solid #bcbcbc"
-        }}>
-          Guest mode active. You play as <b>{challengerId.split("-")[0]}</b>
-
-        </p>)}
-      <input
-        type="text"
-        name="word"
-        maxLength={5}
-        value={word}
-        onChange={(e) => setWord(e.target.value.toUpperCase())}
-        className={styles.wordInput}
-        placeholder="GHOST"
-        disabled={!!shareLink} // boolean value of shareLink
-        autoFocus
-      />
-
-      {error && <p className={styles.errorText}>{error}</p>}
-
-      {!shareLink ? (
-        <button
-          onClick={handleCreate}
-          disabled={loading || word.length !== 5 || wordSet.size === 0}
-          className={styles.createBtn}
+        <p
+          style={{
+            background: "#ededed",
+            padding: "0.5rem",
+            border: "1px solid #bcbcbc",
+            display: "flex",
+            gap: "0.5rem",
+            margin: "0.5rem 0"
+          }}
         >
-          {loading ? "Generating..." : "Generate Duel Link"}
-        </button>
-      ) : (
-        <div className={styles.shareBox}>
-          <p>Challenge Ready! Send this link to your opponent:</p>
-          <div className={styles.linkWrapper}>
-            <input type="text" readOnly value={shareLink} />
-            <button
-              onClick={handleCopy}
-              aria-label="Copy link"
-              className={copied ? styles.copyBtnSuccess : styles.copyBtn}
-            >
-              {copied ? (
-                <Check size={20} className={styles.popIcon} />
-              ) : (
-                <Copy size={20} />
-              )}
-            </button>
-          </div>
-          <AppButton variant="primary" text={"Play Now"} routeURL={shareLink} />
-        </div>
+          <Info />
+          Guest mode active. You play as <b>{challengerId.split("-")[0]}</b>
+        </p>
       )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!loading && word.length === 5 && wordSet.size > 0) {
+            handleCreate();
+          }
+        }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.5rem",
+          marginTop: "1rem"
+        }}
+      >
+        <label htmlFor="word-input" className={styles.srOnly}>
+          Enter a 5-letter word
+        </label>
+
+        <input
+          id="word-input"
+          type="text"
+          name="word"
+          maxLength={5}
+          value={word}
+          onChange={(e) => setWord(e.target.value.toUpperCase())}
+          className={styles.wordInput}
+          placeholder="GHOST"
+          disabled={!!shareLink}
+          autoFocus
+          aria-describedby={error ? "word-error" : undefined}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+
+        {error && (
+          <p id="word-error" className={styles.errorText}>
+            {error}
+          </p>
+        )}
+
+        {!shareLink ? (
+          <AppButton
+            submitType
+            text={loading ? "Generating..." : "Create challenge"}
+            variant="primary"
+            fixWidth
+            disabled={loading || word.length !== 5 || wordSet.size === 0}
+          />
+        ) : (
+          <div className={styles.shareBox}>
+            <p>Send this link to your opponent:</p>
+
+            <div className={styles.linkWrapper}>
+              <input
+                type="text"
+                readOnly
+                value={shareLink}
+                aria-label="Share link"
+              />
+
+              <button
+                type="button"
+                onClick={handleCopy}
+                aria-label="Copy link"
+                className={copied ? styles.copyBtnSuccess : styles.copyBtn}
+              >
+                {copied ? (
+                  <Check size={20} className={styles.popIcon} />
+                ) : (
+                  <Copy size={20} />
+                )}
+              </button>
+            </div>
+
+            <AppButton variant="primary" text="Play Now" routeURL={shareLink} />
+          </div>
+        )}
+      </form>
     </main>
   );
 }

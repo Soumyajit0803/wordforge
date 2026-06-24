@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Swords } from "lucide-react";
+import { Info, Swords } from "lucide-react";
 import styles from "./AcceptChallengeForm.module.css";
+import AppButton from "@/components/Buttons/AppButton";
+import { isGuest } from "@/app/challenges/create/CreateChallengeClient";
 
 interface AcceptChallengeFormProps {
   challengeId: string;
@@ -79,45 +81,75 @@ export default function AcceptChallengeForm({
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.iconWrapper}>
-          <Swords size={48} className={styles.icon} />
+          {/* <Swords size={48} className={styles.icon} /> */}
         </div>
-        
-        <h2 className={styles.title}>
-          {challengerName} has challenged you!
-        </h2>
-        
+
+        <div className={styles.title}>
+          <div
+            style={{
+              background: "rgba(0, 0, 0, 0.12)",
+              padding: "0.5rem",
+              border: "1px solid #a1a1a1",
+              width: "min-content",
+              marginBottom: "0.5rem"
+            }}
+          >
+            {challengerName}
+          </div>
+          has challenged you!
+        </div>
+
         <p className={styles.subtitle}>
-          Before the duel begins, you must set a trap. Enter a 5-letter word for <strong>{challengerName}</strong> to guess. 
+          Before the challenge begins, you must set a word for{" "}
+          <strong>{challengerName}</strong> to guess.
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
+            <label htmlFor="accept-word-input" style={{
+              marginBottom: "0.5rem",
+              color: "var(--foreground-secondary)"
+            }}>
+              Enter the 5-letter word for this duel
+            </label>
+
             <input
+              id="accept-word-input"
               type="text"
+              name="challenge-word"
               maxLength={5}
               value={word}
               onChange={(e) => setWord(e.target.value.toUpperCase())}
-              placeholder="E.g. GHOST"
+              placeholder="GHOST"
               className={styles.wordInput}
               disabled={isLoading}
               autoFocus
+              autoComplete="new-password"
+              autoCorrect="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              aria-describedby={error ? "duel-word-error" : undefined}
             />
           </div>
 
-          {error && <p className={styles.errorMessage}>{error}</p>}
-
-          <button 
-            type="submit" 
-            className={styles.submitButton}
+          {error && (
+            <p id="duel-word-error" className={styles.errorMessage}>
+              {error}
+            </p>
+          )}
+          <AppButton
+            text={isLoading ? "Locking Duel..." : "Accept Challenge"}
+            submitType
+            variant="primary"
             disabled={word.length !== 5 || isLoading}
-          >
-            {isLoading ? "Locking Duel..." : "Accept & Start Duel"}
-          </button>
+            fixWidth
+          />
         </form>
 
-        {!currentUserId && (
+        {currentUserId && isGuest(currentUserId) && (
           <p className={styles.guestNotice}>
-            You are playing as a Guest. Make sure to sign up/log in later to keep track of your duels.
+            You are playing as <b>Guest {currentUserId.split("-")[0]}</b>. Make sure to sign up/log in later to
+            keep track of your challenges.
           </p>
         )}
       </div>

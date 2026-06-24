@@ -7,7 +7,7 @@
   padding-top: 3rem;
   font-family: inherit;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 3rem;
 }
 
 .container h1 {
@@ -15,10 +15,6 @@
   margin-bottom: 0.5rem;
 }
 
-.container p {
-  color: #787c7e;
-  margin-bottom: 2rem;
-}
 
 /* The core input field */
 .wordInput {
@@ -28,7 +24,6 @@
   text-align: left;
   text-transform: uppercase;
   padding: 1rem;
-  margin-bottom: 1rem;
   border: 2px solid #d3d6da;
   outline: none;
   transition: all 0.2s;
@@ -49,7 +44,6 @@
 .errorText {
   color: #e63946; /* A soft red for errors */
   font-weight: 500;
-  margin-bottom: 1rem;
   min-height: 24px; /* Prevents the button from jumping when error appears */
 }
 
@@ -86,10 +80,9 @@
 .shareBox {
   width: 100%;
   max-width: 400px;
-  background-color: #f8f9fa;
-  border: 1px solid #d3d6da;
+  border: 1px solid #00000042;
   padding: 1.5rem;
-  margin-top: 1rem;
+  margin: 1rem;
   animation: slideUp 0.3s ease-out forwards;
 
   display: flex;
@@ -97,12 +90,6 @@
   justify-content: center;
   flex-direction: column;
   gap: 1rem;
-}
-
-.shareBox p {
-  color: #111;
-  font-weight: bold;
-  margin-bottom: 1rem;
 }
 
 .linkWrapper {
@@ -117,7 +104,6 @@
   padding: 0.8rem;
   font-size: 0.9rem;
   border: 1px solid #d3d6da;
-  background-color: #fff;
   color: #333;
   outline: none;
   /* Prevents the user from typing in the read-only box */

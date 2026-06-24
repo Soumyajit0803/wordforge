@@ -3,18 +3,16 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: 5rem 1rem;
+  margin-top: 3rem;
+  padding-top: 3rem;
 }
 
 .card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  padding: 3rem 2rem;
-  max-width: 480px;
+  /* background: white; */
+  padding: 1rem;
+  max-width: 600px;
   width: 100%;
   text-align: center;
-  border: 1px solid #eaeaea;
 }
 
 .iconWrapper {
@@ -24,14 +22,18 @@
 }
 
 .icon {
-  color: #1a1a1b; /* Wordle dark gray */
+  color: var(--foreground); /* Wordle dark gray */
 }
 
 .title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1a1a1b;
+  color: var(--foreground);
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .subtitle {
@@ -44,33 +46,37 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .inputGroup {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .wordInput {
-  width: 100%;
-  padding: 1rem;
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: 0.5rem;
-  text-align: center;
+  width: calc(1.8*5ch);
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: left;
   text-transform: uppercase;
+  padding: 1rem;
   border: 2px solid #d3d6da;
-  border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s;
+  letter-spacing: 0.75rem; 
 }
 
 .wordInput:focus {
-  border-color: #538d4e; /* Wordle Green */
+  border-color: #000; /* Wordle Green */
 }
 
 .wordInput:disabled {
-  background-color: #f3f3f3;
   cursor: not-allowed;
 }
 
@@ -102,7 +108,6 @@
 }
 
 .submitButton:disabled {
-  background-color: #d3d6da;
   cursor: not-allowed;
 }
 

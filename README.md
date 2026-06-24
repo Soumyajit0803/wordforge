@@ -6,21 +6,7 @@
 - Leaderboard is a separate table which gets updated every time a challenge ends and both the players are registered users.
 - [PENDING] Prompt the guest to register on finishing every challenge to sign up, doing which the current challenge will become the first challenge of him as a registered user. [DONE][PENDING MORE TESTS]
 
-## Future important works:
-1. `Current streak` not working as usual. [FIXED]
-2. `status` variable needs to be scrapped from database, or its implementation needs a major fix [SCRAPPED]
-3. Need to fix the status page for those who are neither challenger nor opponent. [FIXED]
-4. Change the format of ID for guest users to remove any whitespaces.[DONE]
-5. Review the IQ calculating logic
-> Refactor large files to remove useless code [TO BE DONE WHEN PROJECT READY FOR PROD]
-
-## Future casual works:
-1. Provide a link from challenge creation page to go to status/[id] from where user can go to play area. [DONE: Link to play area. If word not set, fallback to status]
-2. Provide a refresh button over the opponent card to refetch the opponent attempts
-
-## Questions:
-1. If atleast one player is guest, should we update the user_stats at all? That would actually open a loophole to achieve good results when registered user manipulates the guest/acts as the guest opponent. ANSWER: NO
-2. Save progress: Why not save the progress if I am already saving the challenge ID of the challenge, irrespective of the type of challenge? ANSWER: No need, guest profile only exists in the browser. If the cookies ever get deleted from browser, the guest is forgotten forever. So should be the game progress.[Need validation but almost sure]
-
-3. Do I need the match_results table? Fr? ANSWER: NO. Just remove it.[PRIORITY][DONE]
+## UI works:
+1. Do better on popup showing game status on game over
+2. Change the overall theme color to black
 
