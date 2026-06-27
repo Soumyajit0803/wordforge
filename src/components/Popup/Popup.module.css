@@ -12,7 +12,8 @@
   animation: fadeIn 0.3s ease-in;
 }
 
-.modal, .helpModal {
+.modal,
+.helpModal {
   background: white;
   padding: 2.5rem;
   text-align: center;
@@ -20,7 +21,14 @@
   animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   width: min(25rem, 90%);
-  border: 1px solid #000
+  border: 1px solid #000;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .helpModal {
@@ -122,7 +130,8 @@
   gap: 1rem;
 }
 
-.explanation, .examplesSection {
+.explanation,
+.examplesSection {
   flex: 1;
 }
 
@@ -190,4 +199,3 @@
     flex-direction: column;
   }
 }
-

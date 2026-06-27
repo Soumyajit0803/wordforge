@@ -6,6 +6,126 @@ import Popup from "@/components/Popup/Popup";
 import { CornerDownLeftIcon, Delete } from "lucide-react";
 import { redirect } from "next/navigation";
 
+
+/**
+ * Calculates a 0-100 IQ score based on a player's Wordle guess history.
+ * @param guesses - Array of words the player guessed in order.
+ * @param targetWord - The correct answer.
+ * @returns The final calculated IQ score.
+ */
+export function calculateGameIQ(guesses: string[], targetWord: string): number {
+  let iq = 100;
+  let penalty = 0;
+  console.log(guesses);
+
+  // Historical memory initialized before the game loop
+  const knownDeadLetters = new Set<string>();
+  const knownGreenLetters = new Set<string>();
+  const knownYellowSpots = new Map<string, Set<number>>();
+
+  const targetUpper = targetWord.toUpperCase();
+
+  for (const guess of guesses) {
+    let deduction = 0;
+    let finish = 0;
+    
+    const guessLetters = guess.toUpperCase().split("");
+    const targetLetters = targetUpper.split("");
+    const result: Evaluation[] = Array(targetWord.length).fill(Evaluation.ABSENT);
+
+    // --- Standard 2-Pass Evaluation Engine ---
+    // Pass 1: Find exact matches (Green)
+    guessLetters.forEach((letter, i) => {
+      if (letter === targetLetters[i]) {
+        result[i] = Evaluation.CORRECT;
+        targetLetters[i] = ""; // Consume it
+      }
+    });
+    
+    
+    // Pass 2: Find misplaced letters (Yellow)
+    guessLetters.forEach((letter, i) => {
+      if (result[i] !== Evaluation.CORRECT && targetLetters.includes(letter)) {
+        result[i] = Evaluation.PRESENT;
+        targetLetters[targetLetters.indexOf(letter)] = ""; // Consume it
+      }
+    });
+
+    // --- Pass 1: Evaluate Deductions ---
+    let discoveryBonus = 0;
+    guessLetters.forEach((x, i) => {
+      const color = result[i];
+
+      if (color === Evaluation.CORRECT) {
+        finish += 1;
+        if(!knownGreenLetters.has(x)){
+          discoveryBonus += 1;
+        }
+      } 
+      else if (color === Evaluation.PRESENT) {
+        const spots = knownYellowSpots.get(x);
+        if (spots && spots.has(i)) {
+          deduction += 1; // No attempt at bettering x (same wrong spot)
+        } else if (knownGreenLetters.has(x)) {
+          deduction += 2; // Worse, demoted x (moved away from known green)
+        }
+
+        if(!spots){
+          discoveryBonus += 0.5;
+        }
+      } 
+      else if (color === Evaluation.ABSENT) {
+        if (knownDeadLetters.has(x)) {
+          deduction += 1; // Reused a known true dead letter
+        }
+      }
+    });
+
+    // --- Pass 3: Update historical memory for the next turn ---
+    guessLetters.forEach((x, i) => {
+      const color = result[i];
+
+      if (color === Evaluation.CORRECT) {
+        knownGreenLetters.add(x);
+      } 
+      else if (color === Evaluation.PRESENT) {
+        if (!knownYellowSpots.has(x)) {
+          knownYellowSpots.set(x, new Set<number>());
+        }
+        knownYellowSpots.get(x)!.add(i);
+      } 
+      else if (color === Evaluation.ABSENT) {
+        // Only mark as a true dead letter if it doesn't exist in the target at all
+        if (!targetUpper.includes(x)) {
+          knownDeadLetters.add(x);
+        }
+      }
+    });
+
+
+        // --- Pass 2: Apply the tier drop and logical mistakes ---
+    console.log("Discovery Bonus: ", discoveryBonus)
+    iq -= (deduction + penalty);
+    
+    // Set flat tier drop for subsequent turns to preserve the 0-100 scale
+    penalty = 15;
+        // --- Check for Win ---
+    if (finish === 5) {
+      break; // Exit the loop early if they guessed the word
+    }
+    iq += discoveryBonus;
+  }
+
+  // Handle Loss Condition (Ran out of turns without guessing the word)
+  const won = guesses.includes(targetWord);
+  if (!won) {
+    iq = Math.max(0, iq - 25);
+  }
+
+  // Ensure the final score stays exactly between 0 and 100
+  return Math.max(0, Math.min(100, Math.round(iq)));
+}
+
 const WORD_LENGTH = 5;
 const MAX_GUESSES = 6;
 // The hardcoded target word for testing
@@ -19,6 +139,7 @@ const KEYBOARD_ROWS = [
 ];
 
 type GameStatus = "playing" | "won" | "lost";
+
 export const enum Evaluation {
   NODATA = 0,
   ABSENT = -1,
@@ -44,6 +165,7 @@ export default function PlayArea({
   const [dictionaryLoaded, setDictionaryLoaded] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [score, setScore] = useState(0);
 
   // 2. Initialize your state with the cloud data!
   const [guesses, setGuesses] = useState<string[]>(() => {
@@ -61,6 +183,7 @@ export default function PlayArea({
   >({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     // 1. Fetch Dictionary
     fetch("/words.json")
@@ -101,9 +224,12 @@ export default function PlayArea({
     setGameStatus(status);
     setIsModalOpen(true);
     console.log("Game Over with status:", status, "and guesses:", finalGuesses);
+    console.log(guesses);
 
     // 1. Filter out the empty strings from the guesses array
     const playedGuesses = finalGuesses.filter((g) => g !== "");
+    const currentScore = calculateGameIQ(finalGuesses, targetWord);
+    setScore(currentScore);
 
     try {
       // 2. Send the data to your Next.js API route to update the database
@@ -115,7 +241,8 @@ export default function PlayArea({
           isCreator, // Tells the backend to update playerA_Guesses or playerB_Guesses
           guesses: playedGuesses,
           targetWord,
-          isMigration: false
+          isMigration: false,
+          score: currentScore
         }),
       });
 
@@ -187,7 +314,6 @@ export default function PlayArea({
             next[currentGuessIndex] = currentEval;
             return next;
           });
-
           // Update Keyboard Colors
           setKeyboardStatus((prevStatus) => {
             const newStatus = { ...prevStatus };
@@ -348,6 +474,7 @@ export default function PlayArea({
           challengeId={challengeId}
           isCreator = {isCreator}
           playedGuesses = {guesses}
+          score={score}
         />
       )}
 

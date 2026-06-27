@@ -76,9 +76,9 @@ export default async function MyChallengesPage() {
     return (
       <main className={styles.container}>
         <div className={styles.header}>
-          <Swords size={80} color="#d3d6da" />
-          <h2>No Battle History</h2>
-          <p>You haven't initiated or accepted any duels yet.</p>
+          {/* <Swords size={80} color="#d3d6da" /> */}
+          <h2>Challenge History</h2>
+          <p>You haven't initiated or accepted any challenges yet.</p>
         </div>
         <AppButton text="Create Challenge" routeURL="/challenges/create" fixWidth />
       </main>
@@ -105,7 +105,7 @@ export default async function MyChallengesPage() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <h1>Duel History</h1>
+        <h1>Challenge History</h1>
         <p>Your active and completed matches.</p>
       </header>
 

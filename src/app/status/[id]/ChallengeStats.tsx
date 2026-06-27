@@ -172,7 +172,7 @@ export default function ChallengeStats({
           }}
         >
           <Info size={20} />
-          Challenge is in guest mode. It will not be saved in wordforge leaderboard.
+          Challenge is in guest mode. It will not be saved in ForgeWord leaderboard.
         </p>
       )}
     </div>

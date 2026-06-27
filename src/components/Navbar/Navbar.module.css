@@ -36,7 +36,7 @@
   object-fit: cover;
 }
 .iconButton.selected {
-  background-color: var(--blue);
+  background-color: var(--foreground);
   color: #fff;
 }
 
@@ -48,7 +48,7 @@
 
 .forMobile {
   display: none;
-  border: 1px solid red;
+  /* border: 1px solid red; */
 }
 
 .drawer {
@@ -62,7 +62,7 @@
   top: 0;
   left: 0;
   background: var(--background);
-  border: 1px solid red;
+  /* border: 1px solid red; */
   height: 100vh;
   width: 100vw;
   transform: translateX(-100%);
@@ -92,7 +92,7 @@
     border-radius: 0;
   }
   .iconButton.selected {
-    color: var(--blue);
+    color: var(--foreground);
     font-weight: bold;
     background-color: transparent;
   }

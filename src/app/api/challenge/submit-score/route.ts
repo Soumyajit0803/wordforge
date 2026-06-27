@@ -6,29 +6,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { cookies } from "next/headers";
 
-// --- THE EFFICIENCY ALGORITHM ---
-function calculateEfficiencyIQ(guesses: string[], targetWord: string): number {
-  if (guesses.length === 0) return 0;
-
-  let score = 100;
-  const targetChars = targetWord.split("");
-  const knownGrayLetters = new Set<string>();
-
-  guesses.forEach((guess, index) => {
-    score -= index * 2.5;
-    for (const char of guess) {
-      if (knownGrayLetters.has(char)) score -= 5;
-    }
-    for (const char of guess) {
-      if (!targetChars.includes(char)) knownGrayLetters.add(char);
-    }
-  });
-
-  const isWin = guesses.includes(targetWord);
-  if (!isWin) score -= 40;
-
-  return Math.max(0, Math.min(100, score));
-}
 
 // --- THE MAIN ROUTE ---
 export async function POST(request: Request) {
@@ -40,7 +17,7 @@ export async function POST(request: Request) {
     console.log(body);
     console.log("\n\n\n");
 
-    const { challengeId, isCreator, guesses, targetWord, isMigration } = body;
+    const { challengeId, isCreator, guesses, targetWord, isMigration, score } = body;
 
     if (!challengeId || !guesses) {
       return NextResponse.json(
@@ -79,7 +56,7 @@ export async function POST(request: Request) {
 
     if (!duel) throw new Error("Duel not found.");
     
-    const efficiencyScore = calculateEfficiencyIQ(guesses, targetWord);
+    const efficiencyScore = score;
     const updatePayload: any = isCreator
       ? { playerA_Guesses: guesses, playerA_Efficiency: efficiencyScore }
       : { playerB_Guesses: guesses, playerB_Efficiency: efficiencyScore };

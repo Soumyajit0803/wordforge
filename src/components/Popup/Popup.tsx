@@ -16,6 +16,7 @@ interface PopupProps {
   challengeId: string;
   isCreator: boolean;
   playedGuesses: string[];
+  score: number
 }
 
 const askToLogin =
@@ -30,6 +31,7 @@ export default function Popup({
   challengeId,
   isCreator,
   playedGuesses,
+  score
 }: PopupProps) {
   const { player } = usePlayer();
 
@@ -41,6 +43,7 @@ export default function Popup({
       isCreator,
       guesses: playedGuesses,
       targetWord,
+      score
     };
     localStorage.setItem(
       "pending_game_score",
@@ -64,6 +67,12 @@ export default function Popup({
         </div>
 
         <h2>{isWon ? "Splendid!" : "Next Time!"}</h2>
+        <h4 style={{
+          padding: "0.5rem",
+          margin: "0.5rem",
+          background: "#e1e1e1",
+          width: "15ch"
+        }}>IQ score: {score}</h4>
 
         {!isWon && (
           <p>
