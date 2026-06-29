@@ -139,23 +139,35 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
   const isOpponent = currentUserId === duelData.opponentId;
   const boardRef = useRef(null);
-    const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     if (boardRef.current === null) {
       return;
     }
 
-    // Convert the ref's current DOM node into a PNG
-    htmlToImage
-      .toPng(boardRef.current, { cacheBust: true })
-      .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = `wordle-status.png`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error("Failed to export image", err);
+    // Define your ideal desktop width (adjust this number based on your design)
+    const targetDesktopWidth = 1200;
+
+    try {
+      // Pass the overriding options into the library
+      const dataUrl = await htmlToImage.toPng(boardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+
+        // 2. Force the cloned DOM element to stretch to the desktop width,
+        // which tricks your CSS media queries into applying the desktop layout.
+        style: {
+          transform: "scale(1)", // Prevent any mobile zooming/scaling issues
+        },
       });
+
+      // Standard download logic
+      const link = document.createElement("a");
+      link.download = `wordle-status.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Failed to export image", err);
+    }
   }, []);
   // Determine who won for highlighting
   const creatorWon = duelData.winnerId
@@ -211,7 +223,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
         </p>
       </div>
 
-      <div className={styles.boardsWrapper} ref={boardRef}>
+      <div className={styles.boardsWrapper}>
         <MiniBoard
           title={isCreator ? "You" : isOpponent ? "Opponent" : "Player A"}
           playerName={
@@ -230,13 +242,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
         </div>
 
         <MiniBoard
-          title={
-            isOpponent
-              ? "You"
-              : isCreator
-                ? "Opponent"
-                : "Player B"
-          }
+          title={isOpponent ? "You" : isCreator ? "Opponent" : "Player B"}
           playerName={
             (isGuest(duelData.opponentId) ? "Guest " : "") +
               duelData.opponentName || "Guest Opponent"
@@ -248,10 +254,57 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           isWinner={matchDrawn ? false : !creatorWon}
         />
       </div>
-      <AppButton startIcon={<Download />} onClick={handleDownload} text="Save Result" fixWidth styles={{
-        marginTop: "3rem",
-        marginBottom: "0.5rem"
-      }} />
+
+      <div style={{
+        zIndex: -9999,
+        pointerEvents: "none",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        gap: "1rem",
+        transform: "scale(0.01)",
+        padding: "1rem",
+        background: "#fff",
+        border: "10px double #656565"
+      }} ref={boardRef}>
+        <h1 style={{width: "100%", textAlign: "center", padding: "1rem"}}>ForgeWord Results</h1>
+        <div style={{display: "flex", flexWrap: "nowrap", gap: "1rem"}}>
+        <MiniBoard
+          title={isCreator ? "You" : isOpponent ? "Opponent" : "Player A"}
+          playerName={
+            (isGuest(duelData.creatorId) ? "Guest " : "") +
+              duelData.creatorName || "Guest Challenger"
+          }
+          playerImg={creatorImgBase64}
+          targetWord={duelData.wordForA} // Creator guesses wordForA
+          guesses={duelData.playerA_Guesses}
+          iq={duelData.playerA_Efficiency}
+          isWinner={matchDrawn ? false : creatorWon}
+        />
+
+        <MiniBoard
+          title={isOpponent ? "You" : isCreator ? "Opponent" : "Player B"}
+          playerName={
+            (isGuest(duelData.opponentId) ? "Guest " : "") +
+              duelData.opponentName || "Guest Opponent"
+          }
+          playerImg={opponentImgBase64}
+          targetWord={duelData.wordForB} // Opponent guesses wordForB
+          guesses={duelData.playerB_Guesses}
+          iq={duelData.playerB_Efficiency}
+          isWinner={matchDrawn ? false : !creatorWon}
+        /></div>
+      </div>
+      <AppButton
+        startIcon={<Download />}
+        onClick={handleDownload}
+        text="Save Result"
+        fixWidth
+        styles={{
+          marginTop: "3rem",
+          marginBottom: "0.5rem",
+        }}
+      />
       <AppButton
         onClick={() => window.location.reload()}
         text="Refresh status"

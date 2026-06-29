@@ -2,9 +2,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  position: relative;
+  background-color: var(--background);
+  width: 100%;
 }
 
 .header {
@@ -56,6 +56,7 @@
   width: 100%;
   padding: 1rem;
   background: var(--background);
+  z-index: 0;
 }
 
 .vsBadge {
