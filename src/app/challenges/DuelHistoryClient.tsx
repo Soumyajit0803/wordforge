@@ -12,6 +12,7 @@ type SimpleDuel = {
 };
 
 export default function DuelHistoryClient({ duels }: { duels: SimpleDuel[] }) {
+  console.log(duels);
   return (
     <div className={styles.wrapper}>
       <div className={styles.tableContainer}>
@@ -40,6 +41,8 @@ export default function DuelHistoryClient({ duels }: { duels: SimpleDuel[] }) {
                   <Link href={`/status/${duel.id}`} className={styles.actionBtn}>
                     <Eye size={16} /> See Status
                   </Link>
+                  {duel.winStatus==='PENDING' && 
+                  <p style={{fontSize: "0.7rem"}}>*Pending</p>}
                 </td>
               </tr>
             ))}

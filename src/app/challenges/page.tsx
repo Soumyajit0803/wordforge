@@ -87,6 +87,7 @@ export default async function MyChallengesPage() {
 
   const formattedDuels = myDuelsRaw.map((row) => {
     const { duel, creatorName, opponentName } = row;
+    console.log(row);
     const isCreator = duel.creatorId === userId;
     
     let opponentDisplay = "TBD";
@@ -98,7 +99,7 @@ export default async function MyChallengesPage() {
       id: duel.id,
       date: (duel.completedAt || duel.createdAt).toLocaleDateString(),
       opponent: opponentDisplay,
-      winStatus: (duel.winnerId==='DRAW' || opponentDisplay==='TBD')?'DRAW':(duel.winnerId===userId?"WON":"LOST")
+      winStatus: duel.winnerId?((duel.winnerId==='DRAW' || opponentDisplay==='TBD')?'DRAW':(duel.winnerId===userId?"WON":"LOST")):"PENDING"
     };
   });
 
