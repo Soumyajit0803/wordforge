@@ -16,7 +16,7 @@ interface PopupProps {
   challengeId: string;
   isCreator: boolean;
   playedGuesses: string[];
-  score: number
+  score: number;
 }
 
 const askToLogin =
@@ -31,7 +31,7 @@ export default function Popup({
   challengeId,
   isCreator,
   playedGuesses,
-  score
+  score,
 }: PopupProps) {
   const { player } = usePlayer();
 
@@ -43,7 +43,7 @@ export default function Popup({
       isCreator,
       guesses: playedGuesses,
       targetWord,
-      score
+      score,
     };
     localStorage.setItem(
       "pending_game_score",
@@ -67,12 +67,16 @@ export default function Popup({
         </div>
 
         <h2>{isWon ? "Splendid!" : "Next Time!"}</h2>
-        <h4 style={{
-          padding: "0.5rem",
-          margin: "0.5rem",
-          background: "#e1e1e1",
-          width: "15ch"
-        }}>IQ score: {score}</h4>
+        <h4
+          style={{
+            padding: "0.5rem",
+            margin: "0.5rem",
+            background: "#e1e1e1",
+            width: "15ch",
+          }}
+        >
+          IQ score: {score}
+        </h4>
 
         {!isWon && (
           <p>
@@ -81,7 +85,10 @@ export default function Popup({
         )}
 
         <p>
-          You {isWon ? `got it in ${chances} ${chances>1?"guesses":"guess"}!` : "ran out of guesses."}
+          You{" "}
+          {isWon
+            ? `got it in ${chances} ${chances > 1 ? "guesses" : "guess"}!`
+            : "ran out of guesses."}
         </p>
 
         {/* If they are a guest, politely suggest they log in */}
@@ -96,6 +103,11 @@ export default function Popup({
               startIcon={<GoogleIcon />}
             />
           )}
+          <AppButton
+            onClick={onClose}
+            text="Check result"
+            styles={{ width: "100%" }}
+          />
         </div>
       </div>
     </div>

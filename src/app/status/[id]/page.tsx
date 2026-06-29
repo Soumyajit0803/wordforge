@@ -37,6 +37,7 @@ export default async function StatusPage({
     .select({
       challenge: challenges,
       creatorName: users.name,
+      creatorImg: users.image
     })
     .from(challenges)
     .leftJoin(users, eq(challenges.creatorId, users.id))
@@ -51,7 +52,7 @@ export default async function StatusPage({
     );
   }
 
-  const { challenge, creatorName } = challengeResult[0];
+  const { challenge, creatorName, creatorImg } = challengeResult[0];
   let creatorFirstName = creatorName ? creatorName.split(" ")[0] : challenge.creatorId.split("-")[0];
 
   const isCreator = currentUserId === challenge.creatorId;
@@ -64,6 +65,7 @@ export default async function StatusPage({
     [opponent] = await db
       .select({
         name: users.name,
+        image: users.image
       })
       .from(users)
       .where(eq(users.id, challenge.opponentId))
@@ -101,7 +103,9 @@ export default async function StatusPage({
   const duelData = {
     ...challenge,
     creatorName: creatorFirstName,
+    creatorImg: creatorImg,
     opponentName: opponent?.name || "Guest Opponent",
+    opponentImg: opponent?.image
   };
 
   // 5. Pass everything to the Client Component

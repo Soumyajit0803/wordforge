@@ -27,6 +27,26 @@
   color: #787c7e;
 }
 
+.playerDP {
+  width: 7rem;
+  border-radius: 10rem
+}
+
+.about {
+  display: flex;
+  align-items: flex-start;
+  justify-content: first baseline;
+  gap: 1rem;
+}
+
+.aboutContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: first baseline;
+  flex-direction: column;
+  /* border: 1px solid red */
+}
+
 .boardsWrapper {
   display: flex;
   flex-direction: row;
@@ -34,6 +54,8 @@
   justify-content: center;
   gap: 2rem;
   width: 100%;
+  padding: 1rem;
+  background: var(--background);
 }
 
 .vsBadge {
@@ -91,13 +113,15 @@
 .grid {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 
 .row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  width: 100%;
+  /* justify-content: space-between; */
 }
 
 .cell {

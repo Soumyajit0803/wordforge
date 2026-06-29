@@ -16,6 +16,7 @@
         "@neondatabase/serverless": "^1.0.2",
         "dotenv": "^17.4.0",
         "drizzle-orm": "^0.45.2",
+        "html-to-image": "^1.11.13",
         "js-cookie": "^3.0.8",
         "lucide-react": "^1.7.0",
         "next": "16.2.2",
