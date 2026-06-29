@@ -5,17 +5,7 @@
 - If either of the player is a guest, the challenge result won't be saved in tables other than `challenges` table.
 - Leaderboard is a separate table which gets updated every time a challenge ends and both the players are registered users.
 - [PENDING] Prompt the guest to register on finishing every challenge to sign up, doing which the current challenge will become the first challenge of him as a registered user. [DONE][PENDING MORE TESTS]
-
-## Pending works:
-1. Do better on popup showing game status on game over
-2. Change the overall theme color to black
-3. Create challenge button on /challenges/create
-4. BUG: Opponent played, I have not. Yet the challenge history shown red mark for opponent.
-5. Better logic needed for efficiencyIQ calculate
-6. [NEW UI]: Keep a live IQ calculator as I hit my guesses
-7. [POSSIBLE BUG]: What if user creates challenge, then logs out, then plays in the same browser as guest, and then does a login with google to become the opponent as well?
-8. [TESTING]: All scenarios of `sign in with google` after playing game remaining. Although highly likely its perfect.
-
+- Download status card from the /status page to share with others
 ## Evaluation logic
 Penalise for undesirable result. Award bonus for a better guess
 
