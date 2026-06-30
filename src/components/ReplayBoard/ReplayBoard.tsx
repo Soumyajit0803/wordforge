@@ -1,16 +1,12 @@
 "use client";
 
-import { toArray } from "drizzle-orm/mysql-core";
 import styles from "./ReplayBoard.module.css";
 import {
   Download,
-  Info,
-  ListRestart,
-  ListRestartIcon,
   RefreshCw,
+  Share,
   Share2Icon,
   Swords,
-  User2Icon,
   UserSquare2Icon,
 } from "lucide-react";
 import AppButton from "../Buttons/AppButton";
@@ -18,7 +14,7 @@ import { isGuest } from "@/app/challenges/create/CreateChallengeClient";
 import { useRef, useCallback, useState, useEffect } from "react";
 import * as htmlToImage from "html-to-image";
 
-// The true Wordle grading algorithm (handles duplicate letters correctly)
+// The grading algorithm (handles duplicate letters correctly)
 function evaluateStaticGuess(guess: string, targetWord: string) {
   const guessChars = guess.toUpperCase().split("");
   const targetChars = targetWord.toUpperCase().split("");
@@ -53,8 +49,6 @@ export function MiniBoard({
   iq,
   isWinner,
 }: any) {
-  // 1. Create a reference to the board container
-
   var safeGuesses: string[] =
     guesses.length === 6 || guesses.includes(targetWord)
       ? guesses
@@ -70,7 +64,6 @@ export function MiniBoard({
 
   return (
     <div>
-      {/* 3. Attach the ref to the outermost div you want to capture */}
       <div
         className={`${styles.boardCard} ${isWinner ? styles.winnerCard : ""}`}
       >
@@ -107,7 +100,6 @@ export function MiniBoard({
         <div className={styles.grid}>
           {safeGuesses.map((guess, rowIndex) => {
             const guessModifier = guess + "      ".slice(0, 5 - guess.length);
-            // Assuming evaluateStaticGuess is imported or defined elsewhere
             const evaluations = evaluateStaticGuess(guessModifier, targetWord);
 
             return (
@@ -144,11 +136,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
       return;
     }
 
-    // Define your ideal desktop width (adjust this number based on your design)
-    const targetDesktopWidth = 1200;
-
     try {
-      // Pass the overriding options into the library
       const dataUrl = await htmlToImage.toPng(boardRef.current, {
         cacheBust: true,
         pixelRatio: 2,
@@ -176,9 +164,6 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   const matchDrawn =
     duelData.winnerId === "DRAW" ||
     duelData.playerA_Efficiency === duelData.playerB_Efficiency;
-
-  console.log("Match drawn status:", matchDrawn);
-  console.log(duelData);
 
   const [creatorImgBase64, setCreatorImgBase64] = useState(null);
   const [opponentImgBase64, setOpponentImgBase64] = useState(null);
@@ -212,6 +197,27 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
     // 3. Call the wrapper function (Do NOT put await in front of this!)
     loadAllImages();
   }, [duelData.creatorImg, duelData.opponentImg]); // Added dependencies to be safe
+
+  const handleShareLink = async () => {
+    const shareData = {
+      title: "ForgeWord Match Results",
+      text: `Check out my ForgeWord match results! Who do you think won?`,
+      url: window.location.href, // Or a specific dynamic share URL like `/match/${duelData.id}`
+    };
+
+    try {
+      // Check if the browser supports native sharing (most mobiles do)
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard!"); // Replace with your own toast notification
+      }
+    } catch (err) {
+      console.error("Error sharing link:", err);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -255,62 +261,78 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
         />
       </div>
 
-      <div style={{
-        zIndex: -9999,
-        pointerEvents: "none",
-        position: "absolute",
-        top: 0,
-        left: 0,
-        gap: "1rem",
-        transform: "scale(0.01)",
-        padding: "1rem",
-        background: "#fff",
-        border: "10px double #656565"
-      }} ref={boardRef}>
-        <h1 style={{width: "100%", textAlign: "center", padding: "1rem"}}>ForgeWord Results</h1>
-        <div style={{display: "flex", flexWrap: "nowrap", gap: "1rem"}}>
-        <MiniBoard
-          title={isCreator ? "You" : isOpponent ? "Opponent" : "Player A"}
-          playerName={
-            (isGuest(duelData.creatorId) ? "Guest " : "") +
-              duelData.creatorName || "Guest Challenger"
-          }
-          playerImg={creatorImgBase64}
-          targetWord={duelData.wordForA} // Creator guesses wordForA
-          guesses={duelData.playerA_Guesses}
-          iq={duelData.playerA_Efficiency}
-          isWinner={matchDrawn ? false : creatorWon}
-        />
-
-        <MiniBoard
-          title={isOpponent ? "You" : isCreator ? "Opponent" : "Player B"}
-          playerName={
-            (isGuest(duelData.opponentId) ? "Guest " : "") +
-              duelData.opponentName || "Guest Opponent"
-          }
-          playerImg={opponentImgBase64}
-          targetWord={duelData.wordForB} // Opponent guesses wordForB
-          guesses={duelData.playerB_Guesses}
-          iq={duelData.playerB_Efficiency}
-          isWinner={matchDrawn ? false : !creatorWon}
-        /></div>
-      </div>
-      <AppButton
-        startIcon={<Download />}
-        onClick={handleDownload}
-        text="Save Result"
-        fixWidth
-        styles={{
-          marginTop: "3rem",
-          marginBottom: "0.5rem",
+      <div
+        style={{
+          zIndex: -9999,
+          pointerEvents: "none",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          gap: "1rem",
+          transform: "scale(0.01)",
+          padding: "1rem",
+          background: "#fff",
+          border: "10px double #656565",
         }}
-      />
-      <AppButton
-        onClick={() => window.location.reload()}
-        text="Refresh status"
-        startIcon={<RefreshCw />}
-        fixWidth
-      />
+        ref={boardRef}
+      >
+        <h1 style={{ width: "100%", textAlign: "center", padding: "1rem" }}>
+          ForgeWord Results
+        </h1>
+        <div style={{ display: "flex", flexWrap: "nowrap", gap: "1rem" }}>
+          <MiniBoard
+            title={"Challenger"}
+            playerName={
+              (isGuest(duelData.creatorId) ? "Guest " : "") +
+                duelData.creatorName || "Guest Challenger"
+            }
+            playerImg={creatorImgBase64}
+            targetWord={duelData.wordForA} // Creator guesses wordForA
+            guesses={duelData.playerA_Guesses}
+            iq={duelData.playerA_Efficiency}
+            isWinner={matchDrawn ? false : creatorWon}
+          />
+
+          <MiniBoard
+            title={"Opponent"}
+            playerName={
+              (isGuest(duelData.opponentId) ? "Guest " : "") +
+                duelData.opponentName || "Guest Opponent"
+            }
+            playerImg={opponentImgBase64}
+            targetWord={duelData.wordForB} // Opponent guesses wordForB
+            guesses={duelData.playerB_Guesses}
+            iq={duelData.playerB_Efficiency}
+            isWinner={matchDrawn ? false : !creatorWon}
+          />
+        </div>
+      </div>
+      <div
+        style={{
+          width: "min(70vw, 30ch)",
+          marginTop: "3rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem"
+        }}
+      >
+        <AppButton
+          onClick={() => window.location.reload()}
+          text="Refresh status"
+          startIcon={<RefreshCw />}
+        />
+        <AppButton
+          startIcon={<Download />}
+          onClick={handleDownload}
+          text="Save Result"
+        />
+        <AppButton
+          startIcon={<Share2Icon />}
+          onClick={handleShareLink}
+          text="Share link"
+          variant="primary"
+        />
+      </div>
     </div>
   );
 }
