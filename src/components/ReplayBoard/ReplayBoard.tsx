@@ -61,6 +61,7 @@ export function MiniBoard({
     guesses?.includes(targetWord) ||
     (guesses && guesses[5]?.length === 5) ||
     title.includes("Opponent");
+  const isGuest = playerName.startsWith("Guest");
 
   return (
     <div>
@@ -84,7 +85,7 @@ export function MiniBoard({
             )}
             <div className={styles.aboutContent}>
               <h3>{title}</h3>
-              <p className={styles.playerName}>{playerName.split(" ")[0]}</p>
+              <p className={styles.playerName}>{playerName.split(" ")[isGuest?1:0]}</p>
               {revealWord && (
                 <span>
                   Word: <strong>{targetWord?.toUpperCase()}</strong>
@@ -127,7 +128,7 @@ export function MiniBoard({
 }
 
 // The Main Export
-export default function ReplayBoard({ duelData, currentUserId }: any) {
+export default function ReplayBoard({ matchEnded, duelData, currentUserId }: any) {
   const isCreator = currentUserId === duelData.creatorId;
   const isOpponent = currentUserId === duelData.opponentId;
   const boardRef = useRef(null);
@@ -201,7 +202,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
   const handleShareLink = async () => {
     const shareData = {
       title: "ForgeWord Match Results",
-      text: `Check out my ForgeWord match results! Who do you think won?`,
+      text: `Check out my ForgeWord match results!`,
       url: window.location.href, // Or a specific dynamic share URL like `/match/${duelData.id}`
     };
 
@@ -321,7 +322,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           text="Refresh status"
           startIcon={<RefreshCw />}
         />
-        <AppButton
+        {matchEnded && <><AppButton
           startIcon={<Download />}
           onClick={handleDownload}
           text="Save Result"
@@ -331,7 +332,7 @@ export default function ReplayBoard({ duelData, currentUserId }: any) {
           onClick={handleShareLink}
           text="Share link"
           variant="primary"
-        />
+        /></>}
       </div>
     </div>
   );

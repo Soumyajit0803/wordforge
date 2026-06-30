@@ -9,7 +9,6 @@ import AppButton from "@/components/Buttons/AppButton";
 
 export const isGuest = (char: string) => char >= "A" && char <= "Z";
 
-
 export default function CreateChallengeClient({
   challengerId,
 }: {
@@ -81,6 +80,27 @@ export default function CreateChallengeClient({
     }
   };
 
+  const handleShareLink = async () => {
+    const shareData = {
+      title: "ForgeWord Match Link",
+      text: `Can you beat me in this forgeword challenge?`,
+      url: shareLink, // Or a specific dynamic share URL like `/match/${duelData.id}`
+    };
+
+    try {
+      // Check if the browser supports native sharing (most mobiles do)
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard!"); // Replace with your own toast notification
+      }
+    } catch (err) {
+      console.error("Error sharing link:", err);
+    }
+  };
+
   if (status === "loading") {
     return (
       <main className={styles.container}>
@@ -113,7 +133,7 @@ export default function CreateChallengeClient({
             border: "1px solid #bcbcbc",
             display: "flex",
             gap: "0.5rem",
-            margin: "0.5rem 0"
+            margin: "0.5rem 0",
           }}
         >
           <Info />
@@ -132,7 +152,7 @@ export default function CreateChallengeClient({
           flexDirection: "column",
           alignItems: "center",
           gap: "0.5rem",
-          marginTop: "1rem"
+          marginTop: "1rem",
         }}
       >
         <label htmlFor="word-input" className={styles.srOnly}>
@@ -182,7 +202,7 @@ export default function CreateChallengeClient({
                 aria-label="Share link"
               />
 
-              <button
+              {/* <button
                 type="button"
                 onClick={handleCopy}
                 aria-label="Copy link"
@@ -193,7 +213,14 @@ export default function CreateChallengeClient({
                 ) : (
                   <Copy size={20} />
                 )}
-              </button>
+              </button> */}
+              <AppButton styles={{
+                width: "min-content"
+              }} onClick={handleShareLink} text="" startIcon={copied ? (
+                  <Check size={20} className={styles.popIcon} />
+                ) : (
+                  <Copy size={20} />
+                )} />
             </div>
 
             <AppButton variant="primary" text="Play Now" routeURL={shareLink} />

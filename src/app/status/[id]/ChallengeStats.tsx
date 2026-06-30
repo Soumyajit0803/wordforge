@@ -78,13 +78,24 @@ export default function ChallengeStats({
     }
   }, []);
 
-  const handleCopy = async () => {
+  const handleShareLink = async () => {
+    const shareData = {
+      title: "ForgeWord Match Link",
+      text: `Can you beat me in this forgeword challenge?`,
+      url: url, // Or a specific dynamic share URL like `/match/${duelData.id}`
+    };
+
     try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Check if the browser supports native sharing (most mobiles do)
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(shareData.url);
+        alert("Link copied to clipboard!"); // Replace with your own toast notification
+      }
     } catch (err) {
-      console.error("Failed to copy link", err);
+      console.error("Error sharing link:", err);
     }
   };
 
@@ -103,7 +114,7 @@ export default function ChallengeStats({
         {!bothFinished ? "Active challenge!" : "Challenge completed!"}
       </div>
 
-      <ReplayBoard duelData={duelData} currentUserId={currentUserId} />
+      <ReplayBoard matchEnded={bothFinished} duelData={duelData} currentUserId={currentUserId} />
 
       {/* State 1: Active Game, User Needs to Play */}
       {!meFinishedPlaying && hasOpponent ? (
@@ -135,7 +146,7 @@ export default function ChallengeStats({
                   <Copy size={20} />
                 )
               }
-              onClick={handleCopy}
+              onClick={handleShareLink}
               fixWidth
               styles={{
                 padding: "0.7rem",

@@ -86,12 +86,10 @@ export default function Home() {
                 <p className={styles.welcomeName}>{player.user.name}</p>
               </div>
               <AppButton
-                variant="primary"
                 routeURL="/challenges"
                 text="View my challenges"
               />
               <AppButton
-                variant="primary"
                 routeURL="/leaderboard"
                 text="Leaderboard"
               />
