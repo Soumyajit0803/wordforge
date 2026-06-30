@@ -8,7 +8,6 @@ import { alias } from "drizzle-orm/pg-core";
 import styles from "./history.module.css";
 import DuelHistoryClient from "./DuelHistoryClient";
 import AppButton from "@/components/Buttons/AppButton";
-import { Swords } from "lucide-react";
 
 export async function generateMetadata() {
   return {

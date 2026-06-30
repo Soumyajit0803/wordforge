@@ -21,7 +21,6 @@ export default function CreateChallengeClient({
   const [loading, setLoading] = useState(false);
   const [shareLink, setShareLink] = useState("");
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch("/words.json")
@@ -67,16 +66,6 @@ export default function CreateChallengeClient({
       setError("Failed to generate challenge. Try again.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link", err);
     }
   };
 
@@ -201,26 +190,14 @@ export default function CreateChallengeClient({
                 value={shareLink}
                 aria-label="Share link"
               />
-
-              {/* <button
-                type="button"
-                onClick={handleCopy}
-                aria-label="Copy link"
-                className={copied ? styles.copyBtnSuccess : styles.copyBtn}
-              >
-                {copied ? (
-                  <Check size={20} className={styles.popIcon} />
-                ) : (
-                  <Copy size={20} />
-                )}
-              </button> */}
-              <AppButton styles={{
-                width: "min-content"
-              }} onClick={handleShareLink} text="" startIcon={copied ? (
-                  <Check size={20} className={styles.popIcon} />
-                ) : (
-                  <Copy size={20} />
-                )} />
+              <AppButton
+                styles={{
+                  width: "min-content",
+                }}
+                onClick={handleShareLink}
+                text=""
+                startIcon={<Copy size={20} />}
+              />
             </div>
 
             <AppButton variant="primary" text="Play Now" routeURL={shareLink} />

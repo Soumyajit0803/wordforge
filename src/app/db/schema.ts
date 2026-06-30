@@ -48,8 +48,6 @@ export const statusEnum = pgEnum('challenge_status', ['pending', 'active', 'comp
 export const userStats = pgTable('user_stats', {
   // 1-to-1 relationship with NextAuth users
   userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
-  playerName: text('player_name').notNull(), // Cached here to avoid joining `users` for basic leaderboard UI
-  
   totalWins: integer('total_wins').default(0).notNull(),
   totalGamesPlayed: integer('total_games_played').default(0).notNull(),
   

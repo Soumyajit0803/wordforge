@@ -1,6 +1,6 @@
 import { db } from "@/app/db/index";
 import { users, userStats } from "@/app/db/schema";
-import { desc, gt } from "drizzle-orm";
+import { desc, eq, gt } from "drizzle-orm";
 import styles from "./leaderboard.module.css";
 import { Trophy } from "lucide-react";
 import LeaderboardClient from "./LeaderboardClient";
@@ -17,7 +17,7 @@ export default async function GlobalLeaderboardPage() {
   const topPlayers = await db
     .select({
       id: userStats.userId,
-      name: userStats.playerName,
+      name: users.name,
       gamesPlayed: userStats.totalGamesPlayed,
       totalWins: userStats.totalWins,
       averageIQ: userStats.averageEfficiencyScore,
@@ -25,6 +25,7 @@ export default async function GlobalLeaderboardPage() {
       winStreak: userStats.currentWinStreak
     })
     .from(userStats)
+    .innerJoin(users, eq(users.id, userStats.userId))
     .where(gt(userStats.totalGamesPlayed, 0)) // Must have played at least 1 game
     .orderBy(desc(userStats.averageEfficiencyScore))
     .limit(50);

@@ -140,7 +140,6 @@ export async function POST(request: Request) {
             .insert(userStats)
             .values({
               userId: currPlayerId,
-              playerName: currPlayerName,
               totalGamesPlayed: 1,
               totalWins: isWinner ? 1 : 0,
               averageEfficiencyScore: efficiencyScore,
@@ -180,7 +179,6 @@ export async function POST(request: Request) {
               .insert(userStats)
               .values({
                 userId: rivalId,
-                playerName: rivalName,
                 totalGamesPlayed: 1,
                 totalWins: rivalIsWinner ? 1 : 0,
                 averageEfficiencyScore: rivalEfficiency,

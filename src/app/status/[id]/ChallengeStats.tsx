@@ -33,7 +33,6 @@ export default function ChallengeStats({
   myEfficiency,
   opponentEfficiency,
 }: ChallengeStatsProps) {
-  const [copied, setCopied] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
@@ -69,6 +68,7 @@ export default function ChallengeStats({
         .finally(() => {
           setIsSyncing(false);
           window.location.reload();
+          console.log("Done syncing")
         });
     } else {
       console.log(currentUserId);
@@ -76,7 +76,7 @@ export default function ChallengeStats({
       console.log("isCreator: ", isCreator);
       console.log("isOpponent: ", isOpponent);
     }
-  }, []);
+  }, [duelData]);
 
   const handleShareLink = async () => {
     const shareData = {
@@ -114,7 +114,11 @@ export default function ChallengeStats({
         {!bothFinished ? "Active challenge!" : "Challenge completed!"}
       </div>
 
-      <ReplayBoard matchEnded={bothFinished} duelData={duelData} currentUserId={currentUserId} />
+      <ReplayBoard
+        matchEnded={bothFinished}
+        duelData={duelData}
+        currentUserId={currentUserId}
+      />
 
       {/* State 1: Active Game, User Needs to Play */}
       {!meFinishedPlaying && hasOpponent ? (
@@ -139,13 +143,7 @@ export default function ChallengeStats({
             <input type="text" readOnly value={url} />
             <AppButton
               text=""
-              startIcon={
-                copied ? (
-                  <Check size={20} className={styles.popIcon} />
-                ) : (
-                  <Copy size={20} />
-                )
-              }
+              startIcon={<Copy size={20} />}
               onClick={handleShareLink}
               fixWidth
               styles={{
@@ -179,11 +177,12 @@ export default function ChallengeStats({
             justifyContent: "center",
             gap: "0.5rem",
             margin: "0.5rem 0",
-            fontSize: "0.8rem"
+            fontSize: "0.8rem",
           }}
         >
           <Info size={20} />
-          Challenge is in guest mode. It will not be saved in ForgeWord leaderboard.
+          Challenge is in guest mode. It will not be saved in ForgeWord
+          leaderboard.
         </p>
       )}
     </div>
