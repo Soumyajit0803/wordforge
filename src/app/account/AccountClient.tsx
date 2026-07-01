@@ -128,13 +128,6 @@ export default function AccountClient() {
           />
         </div>
 
-        {/* <button
-          type="submit"
-          disabled={isSaving || !name.trim()}
-          className={styles.primaryBtn}
-        >
-          {isSaving ? "Saving..." : "Save Changes"}
-        </button> */}
         <AppButton variant="primary" submitType disabled={isSaving || !name.trim()} text={isSaving ? "Saving..." : "Save Changes"} />
 
         {message && (

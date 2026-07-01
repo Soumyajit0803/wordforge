@@ -11,8 +11,8 @@ import AppButton from "@/components/Buttons/AppButton";
 
 export async function generateMetadata() {
   return {
-    title: "ForgeWord | My Duels",
-    description: "Your ForgeWord match history.",
+    title: "ForgeWord | My Challenges",
+    description: "Your ForgeWord challenge history.",
   };
 }
 

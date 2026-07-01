@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import styles from "./page.module.css";
 import AppButton from "@/components/Buttons/AppButton";
 import { usePlayer } from "@/hooks/usePlayer";
@@ -35,9 +35,7 @@ export const GoogleIcon = () => {
 };
 
 export default function Home() {
-  // const { data: session, status } = useSession();
   const { player, isLoading } = usePlayer();
-  console.log("Current player:", player);
 
   if (isLoading) {
     return (

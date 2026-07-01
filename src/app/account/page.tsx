@@ -7,7 +7,7 @@ import AccountClient from "./AccountClient";
 export function generateMetadata(): Metadata {
   return {
     title: "ForgeWord | My Account",
-    description: "Manage your account settings.",
+    description: "Manage your account.",
   };
 }
 

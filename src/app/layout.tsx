@@ -3,6 +3,7 @@ import { Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "@/components/Navbar/Navbar";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
   title: "ForgeWord",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ForgeWord",
     description: "Create custom word puzzles and challenge your friends!",
-    url: "https://forgeword.vercel.app", // Update this when you deploy!
+    url: "https://forgeword.vercel.app",
     siteName: "ForgeWord",
     type: "website",
   },
@@ -32,6 +33,8 @@ export const metadata: Metadata = {
     "drizzle",
     "react",
     "typescript",
+    "website",
+    "game website"
   ],
 };
 
@@ -64,6 +67,7 @@ export default function RootLayout({
           {children}
         </Providers>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
     </html>
   );
 }

@@ -6,6 +6,13 @@ import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import ChallengeStats from "./ChallengeStats";
 
+export async function generateMetadata() {
+  return {
+    title: "ForgeWord | Result",
+    description: "View the results of your ForgeWord challenge.",
+  };
+}
+
 export default async function StatusPage({
   params,
 }: {
@@ -37,7 +44,7 @@ export default async function StatusPage({
     .select({
       challenge: challenges,
       creatorName: users.name,
-      creatorImg: users.image
+      creatorImg: users.image,
     })
     .from(challenges)
     .leftJoin(users, eq(challenges.creatorId, users.id))
@@ -53,7 +60,9 @@ export default async function StatusPage({
   }
 
   const { challenge, creatorName, creatorImg } = challengeResult[0];
-  let creatorFirstName = creatorName ? creatorName.split(" ")[0] : challenge.creatorId.split("-")[0];
+  let creatorFirstName = creatorName
+    ? creatorName.split(" ")[0]
+    : challenge.creatorId.split("-")[0];
 
   const isCreator = currentUserId === challenge.creatorId;
   const isOpponent = currentUserId === challenge.opponentId;
@@ -65,12 +74,12 @@ export default async function StatusPage({
     [opponent] = await db
       .select({
         name: users.name,
-        image: users.image
+        image: users.image,
       })
       .from(users)
       .where(eq(users.id, challenge.opponentId))
       .limit(1);
-      
+
     if (!opponent) {
       opponent = { name: challenge.opponentId.split("-")[0] };
     }
@@ -79,24 +88,34 @@ export default async function StatusPage({
   }
 
   // 4. Calculate game states
-  const myGuesses = isCreator ? challenge.playerA_Guesses : challenge.playerB_Guesses;
-  const myEfficiency = (isCreator ? challenge.playerA_Efficiency : challenge.playerB_Efficiency) || 0;
-  const opponentEfficiency = (isCreator ? challenge.playerB_Efficiency : challenge.playerA_Efficiency) || 0;
-  const opponentGuesses = isCreator ? challenge.playerB_Guesses : challenge.playerA_Guesses;
+  const myGuesses = isCreator
+    ? challenge.playerA_Guesses
+    : challenge.playerB_Guesses;
+  const myEfficiency =
+    (isCreator ? challenge.playerA_Efficiency : challenge.playerB_Efficiency) ||
+    0;
+  const opponentEfficiency =
+    (isCreator ? challenge.playerB_Efficiency : challenge.playerA_Efficiency) ||
+    0;
+  const opponentGuesses = isCreator
+    ? challenge.playerB_Guesses
+    : challenge.playerA_Guesses;
 
   const meFinishedPlaying = Boolean(
     myGuesses &&
     ((myGuesses.length === 6 && myGuesses[5].length === 5) ||
-      myGuesses.includes(isCreator ? challenge.wordForA : challenge.wordForB))
+      myGuesses.includes(isCreator ? challenge.wordForA : challenge.wordForB)),
   );
 
   const opponentFinishedPlaying = Boolean(
     opponentGuesses &&
     ((opponentGuesses.length === 6 && opponentGuesses[5].length === 5) ||
-      opponentGuesses.includes(isCreator ? challenge.wordForB : challenge.wordForA))
+      opponentGuesses.includes(
+        isCreator ? challenge.wordForB : challenge.wordForA,
+      )),
   );
 
-  console.log("Play status: ", meFinishedPlaying, opponentFinishedPlaying)
+  console.log("Play status: ", meFinishedPlaying, opponentFinishedPlaying);
 
   const bothFinished = meFinishedPlaying && opponentFinishedPlaying;
 
@@ -105,7 +124,7 @@ export default async function StatusPage({
     creatorName: creatorFirstName,
     creatorImg: creatorImg,
     opponentName: opponent?.name || "Guest Opponent",
-    opponentImg: opponent?.image
+    opponentImg: opponent?.image,
   };
 
   // 5. Pass everything to the Client Component
